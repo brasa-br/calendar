@@ -15,6 +15,7 @@ let topo: Topology | null = null;
 
 export function setTopology(t: unknown): void {
   topo = t as Topology;
+  featCache.clear();
 }
 
 /** d3-geo is spherical: a ring wound the "wrong" way covers the whole globe. Reverse those rings. */
@@ -29,8 +30,16 @@ function rewind(f: Feat): Feat {
   return f;
 }
 
-const feats = (name: string): Feat[] =>
-  topo ? (feature(topo, topo.objects[name] as GeometryCollection) as unknown as { features: Feat[] }).features.map(rewind) : [];
+const featCache = new Map<string, Feat[]>();
+function feats(name: string): Feat[] {
+  if (!topo) return [];
+  let f = featCache.get(name);
+  if (!f) {
+    f = (feature(topo, topo.objects[name] as GeometryCollection) as unknown as { features: Feat[] }).features.map(rewind);
+    featCache.set(name, f);
+  }
+  return f;
+}
 
 export function regionIdOf(f: Feat, layer: MapLayer): string {
   return layer === "states" ? `UF_${f.properties.uf}` : `BIOME_${f.properties.biome}`;

@@ -2,7 +2,7 @@ PY := .venv/bin/python
 
 .PHONY: setup data pipeline test web dev
 setup:            ## Python env + web deps
-	uv venv .venv --python 3.12 && uv pip install -p .venv -e ".[dev]"
+	uv venv .venv --python 3.12 && uv pip install -p .venv -r requirements.lock -e ".[dev]"
 	cd web && npm ci
 data:             ## Download NASA FIRMS yearly CSVs for Brazil (~2.2 GB, resumable)
 	$(PY) scripts/download.py

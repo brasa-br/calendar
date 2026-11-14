@@ -2,12 +2,12 @@ import "./styles.css";
 import {
   FIRST_YEAR, LAST_YEAR, MONTHS, SERIES_LABEL,
   loadBoundaries, loadMeta, loadRegions, loadSeries, loadValidation,
-  valueAt, type Meta, type Region, type Series, type SeriesKey, type ViewKey,
+  valueAt, type Meta, type Region, type Series, type SeriesKey, type Validation, type ViewKey,
 } from "./data";
 import { buildCells, renderCalendar, renderLegend } from "./calendar";
 import { annualRows, renderAnnual, renderBeforeAfter, renderValidation } from "./charts";
 import { renderMap, setTopology, type MapLayer } from "./map";
-import { fmt1, fmt2, fmtInt, fmtP, mannKendall } from "./stats";
+import { fmt1, fmt2, fmtInt, fmtP, fmtSigned, mannKendall } from "./stats";
 
 interface State { r: string; from: number; to: number; s: SeriesKey; v: ViewKey; layer: MapLayer }
 
@@ -51,6 +51,8 @@ let regions: Region[] = [];
 let names = new Map<string, string>();
 let meta: Meta | null = null;
 let current: Series | null = null;
+let validation: Validation | null = null;
+let requestId = 0;
 const allSeries = new Map<string, Series>();
 
 function showError(msg: string): void {
@@ -105,8 +107,11 @@ async function update(patch: Partial<State>): Promise<void> {
   if (!names.has(state.r)) state.r = "BR";
   syncControls();
   writeState(state);
+  const id = ++requestId;
   try {
-    current = await loadSeries(state.r);
+    const s = await loadSeries(state.r);
+    if (id !== requestId) return; // a newer selection superseded this one
+    current = s;
     allSeries.set(state.r, current);
     $("error").hidden = true;
     render();
@@ -134,7 +139,7 @@ function render(): void {
   renderAnnual($("annual-host"), rows, state.s, mk ? { slope: mk.slope, p: mk.p } : null);
   $("annual-note").textContent = mk
     ? mk.p < 0.05
-      ? `Dashed line: Sen's slope, ${mk.slope >= 0 ? "+" : ""}${fmtInt.format(mk.slope)} hotspots per year (Mann-Kendall ${fmtP(mk.p)}). Lighter bars are years estimated from MODIS; whiskers show the 90% range.`
+      ? `Dashed line: Sen's slope, ${fmtSigned(mk.slope)} hotspots per year (Mann-Kendall ${fmtP(mk.p)}). Lighter bars are years estimated from MODIS; whiskers show the 90% range.`
       : `No statistically significant trend in this period (Mann-Kendall ${fmtP(mk.p)}). Lighter bars are years estimated from MODIS; whiskers show the 90% range.`
     : "Choose at least four years to test for a trend.";
   renderMapNow();
@@ -233,13 +238,52 @@ function periodTotal(s: Series): number {
   return t;
 }
 
+function selectFromMap(id: string): void {
+  update({ r: id });
+  $("calendar-section").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
 function renderMapNow(): void {
   const totals = new Map<string, number>();
   for (const [id, s] of allSeries) totals.set(id, periodTotal(s));
-  renderMap($("map-host"), state.layer, totals, names, state.r, (id) => {
-    update({ r: id });
-    $("calendar-section").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  });
+  renderMap($("map-host"), state.layer, totals, names, state.r, selectFromMap);
+  renderRanking(totals);
+}
+
+/** Regions of the current map layer ordered by total, with a bar scaled to the largest. */
+function renderRanking(totals: Map<string, number>): void {
+  const kind = state.layer === "states" ? "state" : "biome";
+  const rows = regions
+    .filter((r) => r.kind === kind && totals.has(r.id))
+    .map((r) => ({ r, v: totals.get(r.id) ?? 0 }))
+    .sort((a, b) => b.v - a.v);
+  const host = $("rank-host");
+  const span = state.from === state.to ? `${state.from}` : `${state.from}–${state.to}`;
+  $("rank-title").textContent = `${state.layer === "states" ? "States" : "Biomes"} by harmonized hotspots, ${span}`;
+  if (!rows.length) {
+    host.innerHTML = "";
+    return;
+  }
+  const brazil = totals.get("BR") ?? rows.reduce((a, x) => a + x.v, 0);
+  const max = rows[0].v || 1;
+  host.replaceChildren(
+    ...rows.map(({ r, v }) => {
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = r.id === state.r ? "rank-row is-selected" : "rank-row";
+      b.setAttribute("aria-pressed", String(r.id === state.r));
+      const share = brazil ? (100 * v) / brazil : 0;
+      b.innerHTML =
+        `<span class="rank-name">${r.name}</span>` +
+        `<span class="rank-value">${fmtInt.format(v)}</span>` +
+        `<span class="rank-share">${share < 1 ? "<1" : Math.round(share)}%</span>` +
+        `<span class="rank-bar" aria-hidden="true"><span style="width:${((100 * v) / max).toFixed(1)}%"></span></span>`;
+      b.addEventListener("click", () => selectFromMap(r.id));
+      li.append(b);
+      return li;
+    }),
+  );
 }
 
 function downloadCSV(): void {
@@ -293,14 +337,23 @@ function renderMethod(): void {
   $("generated").textContent = `Data processed ${meta.generated_utc.replace("T", " ").replace("Z", " UTC")}.`;
 }
 
+function renderAll(): void {
+  render();
+  if (meta) renderBeforeAfter($("before-after"), meta);
+  if (validation) renderValidation($("validation-host"), validation, names);
+}
+
+// Mobile browsers fire "resize" when the URL bar hides on scroll; only a width change needs a re-render.
 let resizeTimer = 0;
+let lastWidth = window.innerWidth;
 window.addEventListener("resize", () => {
+  if (window.innerWidth === lastWidth) return;
+  lastWidth = window.innerWidth;
   clearTimeout(resizeTimer);
-  resizeTimer = window.setTimeout(() => {
-    render();
-    if (meta) renderBeforeAfter($("before-after"), meta);
-  }, 150);
+  resizeTimer = window.setTimeout(renderAll, 150);
 });
+// Chart colours are read from CSS tokens at render time, so redraw when the OS theme changes.
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
 
 async function init(): Promise<void> {
   try {
@@ -324,7 +377,10 @@ async function init(): Promise<void> {
     .then(renderMapNow)
     .catch(() => ($("map-host").textContent = "The map could not be loaded. The calendar still works."));
   loadValidation()
-    .then((v) => renderValidation($("validation-host"), v, names))
+    .then((v) => {
+      validation = v;
+      renderValidation($("validation-host"), v, names);
+    })
     .catch(() => ($("validation-host").textContent = "Validation points could not be loaded."));
 }
 

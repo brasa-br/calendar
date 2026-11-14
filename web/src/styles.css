@@ -148,7 +148,7 @@ main { padding-bottom: var(--s8); }
 .key-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); opacity: 0.55; margin-inline: 5px; }
 .key-seam { width: 16px; border-top: 2px dashed var(--ink); }
 .key-hatch { width: 16px; height: 12px; border: 1px solid var(--rule); background: repeating-linear-gradient(45deg, var(--ink-3) 0 1px, transparent 1px 4px); }
-.hint { font-size: var(--t-small); color: var(--ink-3); margin: var(--s2) 0 0; }
+.hint { font-size: var(--t-small); color: var(--ink-2); margin: var(--s2) 0 0; }
 
 .summary { align-self: start; position: sticky; top: 120px; display: grid; gap: var(--s4); }
 .summary dl { margin: 0; display: grid; gap: var(--s4); }
@@ -175,10 +175,32 @@ thead th { color: var(--ink-2); font-weight: 500; }
 tbody th { text-align: left; font-weight: 500; }
 
 /* Sections */
-.annual, .map-section, .method { margin-top: var(--s8); }
+/* Rhythm: the proof sits close to the chart it explains; reference sections get more air. */
+.annual { margin-top: var(--s7); }
+.why { margin-top: var(--s7); }
+.map-section, .method { margin-top: var(--s8); padding-top: var(--s6); border-top: 1px solid var(--rule); }
+.why .prose { font-size: 1.0625rem; }
 .section-note { color: var(--ink-2); font-size: var(--t-data); margin: var(--s1) 0 var(--s4); max-width: 75ch; }
 .map-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); flex-wrap: wrap; }
 .map-host svg { display: block; max-width: 100%; height: auto; }
+.map-layout { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: var(--s6); align-items: start; }
+.rank h3 { margin: 0 0 var(--s3); font-size: var(--t-data); font-weight: 500; color: var(--ink-2); }
+.rank-list { list-style: none; margin: 0; padding: 0; columns: 2 240px; column-gap: var(--s5); }
+.rank-list li { break-inside: avoid; }
+.rank-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto 3.2em; column-gap: var(--s2); row-gap: 3px;
+  width: 100%; padding: 6px 6px 7px; border: 0; border-radius: 4px; background: none;
+  font: inherit; font-size: var(--t-small); color: var(--ink); text-align: left; cursor: pointer;
+  transition: background-color 120ms var(--ease);
+}
+.rank-row:hover { background: var(--cell-zero); }
+.rank-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-value { text-align: right; }
+.rank-share { text-align: right; color: var(--ink-2); }
+.rank-bar { grid-column: 1 / -1; height: 4px; background: var(--cell-zero); border-radius: 2px; overflow: hidden; }
+.rank-bar > span { display: block; height: 100%; background: var(--bar); border-radius: 2px; }
+.rank-row.is-selected { font-weight: 650; }
+.rank-row.is-selected .rank-bar > span { background: var(--action); }
 .region { stroke: var(--paper); stroke-width: 0.8; cursor: pointer; outline: none; }
 .region:hover, .region:focus-visible { stroke: var(--ink); stroke-width: 1.5; }
 .region.is-selected { stroke: var(--ink); stroke-width: 2.2; }
@@ -188,7 +210,7 @@ tbody th { text-align: left; font-weight: 500; }
 .rmc.is-selected circle, .rmc:focus-visible circle, .rmc:hover circle { stroke-width: 3; }
 
 .prose { max-width: 68ch; }
-.method .prose p { margin: var(--s3) 0; }
+.why .prose p, .method .prose p { margin: var(--s3) 0; }
 .steps { padding-left: 1.25em; }
 .steps li { margin-bottom: var(--s2); }
 .figure { margin: var(--s5) 0 0; }
@@ -209,7 +231,8 @@ tbody th { text-align: left; font-weight: 500; }
   .calendar-section { grid-template-columns: 1fr; }
   .summary { position: static; grid-template-columns: 1fr; }
   .summary dl { grid-template-columns: 1fr 1fr; }
-  .method-grid { grid-template-columns: 1fr; }
+  .method-grid { grid-template-columns: minmax(0, 1fr); }
+  .map-layout { grid-template-columns: 1fr; }
   .controls { position: static; }
 }
 @media (max-width: 480px) {

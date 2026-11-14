@@ -3,11 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FireCalendar — 25 years of fire in Brazil</title>
+    <title>FireCalendar: 25 years of fire in Brazil</title>
     <meta name="description" content="A month-by-month calendar of active fires in Brazil from 2001 to 2025, built by harmonizing NASA MODIS and VIIRS satellite hotspots into one consistent record." />
-    <meta property="og:title" content="FireCalendar — 25 years of fire in Brazil" />
+    <meta property="og:title" content="FireCalendar: 25 years of fire in Brazil" />
     <meta property="og:description" content="NASA MODIS and VIIRS fire hotspots harmonized into one consistent monthly record for every Brazilian state and biome." />
+    <!-- og:image must be an absolute URL: set it to <SITE_URL>/img/og.png after the first deploy -->
     <meta property="og:image" content="./img/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#14181a" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="./img/favicon.svg" type="image/svg+xml" />
@@ -24,7 +26,8 @@
           <p class="lede">25 years of fire in Brazil, one consistent record. NASA MODIS and VIIRS satellite hotspots, harmonized month by month.</p>
         </div>
         <nav aria-label="Page">
-          <a href="#method">How it works</a>
+          <a href="#why">Why harmonize</a>
+          <a href="#method">Method</a>
           <a href="https://github.com/" id="repo-link" rel="noopener">Source code</a>
         </nav>
       </div>
@@ -107,20 +110,8 @@
         <div id="annual-host"></div>
       </section>
 
-      <section class="map-section" aria-labelledby="map-title">
-        <div class="map-head">
-          <h2 id="map-title">Where fire concentrates</h2>
-          <div class="segmented" id="layer" role="radiogroup" aria-label="Map regions">
-            <label><input type="radio" name="layer" value="states" checked /><span>States</span></label>
-            <label><input type="radio" name="layer" value="biomes" /><span>Biomes</span></label>
-          </div>
-        </div>
-        <p class="section-note" id="map-note">Total harmonized hotspots in the selected period. Choose a region to open its calendar; the ringed dot is the Campinas Metro Area.</p>
-        <div id="map-host" class="map-host"><div class="skeleton" aria-hidden="true"></div></div>
-      </section>
-
-      <section id="method" class="method" aria-labelledby="method-title">
-        <h2 id="method-title">Why harmonize?</h2>
+      <section id="why" class="why" aria-labelledby="why-title">
+        <h2 id="why-title">Why harmonize?</h2>
         <div class="prose">
           <p>NASA has watched fires from space with <strong>MODIS</strong> (on the Terra and Aqua satellites, 1&nbsp;km pixels) since 2000, and with <strong>VIIRS</strong> (375&nbsp;m pixels) since 2012. VIIRS sees smaller fires, so it reports several times more hotspots. MODIS is near the end of its mission, and VIIRS is its successor.</p>
           <p>If you simply join the two records, the change of sensor looks like an explosion of fire in 2012. <span id="proof-text"></span></p>
@@ -130,7 +121,29 @@
           <figcaption>Annual hotspots in Brazil. The shaded band is the 90% range of the harmonized estimate before 2012.</figcaption>
         </figure>
 
-        <h3>How it works</h3>
+      </section>
+
+      <section class="map-section" aria-labelledby="map-title">
+        <div class="map-head">
+          <h2 id="map-title">Where fire concentrates</h2>
+          <div class="segmented" id="layer" role="radiogroup" aria-label="Map regions">
+            <label><input type="radio" name="layer" value="states" checked /><span>States</span></label>
+            <label><input type="radio" name="layer" value="biomes" /><span>Biomes</span></label>
+          </div>
+        </div>
+        <p class="section-note" id="map-note">Total harmonized hotspots in the selected period. Choose a region to open its calendar; the ringed dot is the Campinas Metro Area.</p>
+        <div class="map-layout">
+          <div id="map-host" class="map-host"><div class="skeleton" aria-hidden="true"></div></div>
+          <div class="rank">
+            <h3 id="rank-title">Ranked by hotspots</h3>
+            <ol id="rank-host" class="rank-list" aria-labelledby="rank-title"></ol>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="method" class="method" aria-labelledby="method-title">
+        <h2 id="method-title">How it works</h2>
         <ol class="prose steps">
           <li><strong>Clean.</strong> Keep only vegetation fires (no volcanoes, industrial heat sources or offshore flares) with nominal or high confidence, and drop duplicates.</li>
           <li><strong>Assign.</strong> Place each of <span id="n-detections">the</span> detections in its state, biome and the Campinas Metro Area using IBGE boundaries.</li>

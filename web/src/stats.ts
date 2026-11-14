@@ -38,6 +38,11 @@ export const fmtInt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 
 export const fmt1 = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
 export const fmt2 = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
+/** Signed number with a typographic minus, e.g. "+1,204" or "−30,812". */
+export function fmtSigned(n: number, f: Intl.NumberFormat = fmtInt): string {
+  return `${n >= 0 ? "+" : "\u2212"}${f.format(Math.abs(n))}`;
+}
+
 export function fmtP(p: number): string {
   if (p < 0.001) return "p < 0.001";
   return `p = ${p.toFixed(3)}`;

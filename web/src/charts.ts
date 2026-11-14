@@ -33,14 +33,17 @@ export function annualRows(s: Series, key: SeriesKey, from: number, to: number):
   return rows;
 }
 
+function median(xs: number[]): number {
+  const a = [...xs].sort((x, y) => x - y);
+  const m = Math.floor(a.length / 2);
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+}
+
 export function renderAnnual(host: HTMLElement, rows: AnnualRow[], key: SeriesKey, sen: { slope: number; p: number } | null): void {
   const width = Math.max(320, host.clientWidth);
-  const mid = rows.length ? rows[Math.floor((rows.length - 1) / 2)] : null;
-  const midMean = rows.reduce((a, r) => a + r.value, 0) / Math.max(1, rows.length);
-  const trendLine =
-    sen && mid
-      ? rows.map((r) => ({ year: r.year, value: midMean + sen.slope * (r.year - (rows[0].year + rows[rows.length - 1].year) / 2) }))
-      : [];
+  // Sen's line: intercept is the median of (y − slope·x), the standard companion to the median slope.
+  const intercept = sen && rows.length ? median(rows.map((r) => r.value - sen.slope * r.year)) : 0;
+  const trendLine = sen ? rows.map((r) => ({ year: r.year, value: intercept + sen.slope * r.year })) : [];
   const chart = Plot.plot({
     width,
     height: 240,
@@ -96,20 +99,31 @@ export function renderBeforeAfter(host: HTMLElement, meta: Meta): void {
 }
 
 export function renderValidation(host: HTMLElement, v: Validation, names: Map<string, string>): void {
-  const pts = v.points.map((p) => ({ ...p, name: names.get(p.region) ?? p.region, obs1: p.obs + 1, pred1: p.pred + 1 }));
+  const width = Math.max(300, host.clientWidth);
+  const narrow = width < 640;
+  const order = [...new Set(v.points.map((p) => p.region))].sort((a, b) => (names.get(a) ?? a).localeCompare(names.get(b) ?? b));
+  const cols = narrow ? 3 : order.length;
+  const pts = v.points.map((p) => {
+    const k = order.indexOf(p.region);
+    return { ...p, obs1: p.obs + 1, pred1: p.pred + 1, col: k % cols, row: Math.floor(k / cols) };
+  });
+  const labels = order.map((r, k) => ({ name: names.get(r) ?? r, col: k % cols, row: Math.floor(k / cols) }));
   const chart = Plot.plot({
-    width: Math.max(320, host.clientWidth),
-    height: 280,
-    marginLeft: 56,
+    width,
+    height: narrow ? 394 : 294,
+    marginLeft: 52,
+    marginTop: 22,
     style: { fontFamily: "inherit", fontSize: "11px", background: "transparent", color: css("--ink-2") },
     x: { type: "log", label: "Observed VIIRS (+1)", ticks: 3, tickFormat: "~s" },
     y: { type: "log", label: "Predicted from MODIS (+1)", ticks: 3, tickFormat: "~s" },
-    fx: { label: null },
-    facet: { data: pts, x: "name" },
+    fx: { axis: null, padding: 0.08 },
+    fy: { axis: null, padding: 0.12 },
+    facet: { data: pts, x: "col", y: "row" },
     marks: [
       Plot.frame({ stroke: css("--rule") }),
       Plot.link([{ a: 1, b: 1e5 }], { x1: "a", y1: "a", x2: "b", y2: "b", stroke: css("--ink-3"), strokeDasharray: "3,3" }),
       Plot.dot(pts, { x: "obs1", y: "pred1", r: 1.8, fill: css("--action"), fillOpacity: 0.55 }),
+      Plot.text(labels, { fx: "col", fy: "row", text: "name", frameAnchor: "top-left", dx: 5, dy: 5, fill: css("--ink"), fontWeight: 500 }),
     ],
   });
   host.replaceChildren(chart);

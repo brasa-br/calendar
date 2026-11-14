@@ -68,7 +68,9 @@ def main() -> None:
         if parent[rid] is not None:
             pk = KTA[parent[rid]]
             k = k.where(tsum >= C.MIN_TERRA_FOR_OWN_KTA, pk)
-        k = k.reindex([f"{i:02d}" for i in range(1, 13)]).fillna(KTA.get("BR", pd.Series(dtype=float)).get("01", 1.0))
+        k = k.reindex([f"{i:02d}" for i in range(1, 13)])
+        k = k.fillna(KTA["BR"]) if "BR" in KTA else k
+        k = k.fillna(1.0)
         KTA[rid] = k
         W[rid] = w
         M[rid] = H.homogenize_modis(w, k)
