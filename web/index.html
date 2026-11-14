@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FireCalendar: 25 years of fire in Brazil</title>
+    <title>Brasa: 25 years of fire in Brazil</title>
     <meta name="description" content="A month-by-month calendar of active fires in Brazil from 2001 to 2025, built by harmonizing NASA MODIS and VIIRS satellite hotspots into one consistent record." />
-    <meta property="og:title" content="FireCalendar: 25 years of fire in Brazil" />
+    <meta property="og:title" content="Brasa: 25 years of fire in Brazil" />
     <meta property="og:description" content="NASA MODIS and VIIRS fire hotspots harmonized into one consistent monthly record for every Brazilian state and biome." />
     <!-- og:image must be an absolute URL: set it to <SITE_URL>/img/og.png after the first deploy -->
     <meta property="og:image" content="./img/og.png" />
@@ -22,7 +22,7 @@
     <header class="masthead">
       <div class="wrap masthead-inner">
         <div>
-          <h1>FireCalendar</h1>
+          <h1>Brasa</h1>
           <p class="lede">25 years of fire in Brazil, one consistent record. NASA MODIS and VIIRS satellite hotspots, harmonized month by month, so any year can be compared with every year since 2001.</p>
         </div>
         <nav aria-label="Page">
@@ -165,8 +165,8 @@
         <ol class="prose steps">
           <li><strong>Clean.</strong> Keep only vegetation fires (no volcanoes, industrial heat sources or offshore flares) with nominal or high confidence, and drop duplicates.</li>
           <li><strong>Assign.</strong> Place each of <span id="n-detections">the</span> detections in its state, biome and the Campinas Metro Area using IBGE boundaries.</li>
-          <li><strong>Fill the Terra-only years.</strong> Until mid-2002 only Terra flew. We scale those months by the Terra-to-(Terra + Aqua) ratio measured in 2003–2011, separately for each calendar month and region.</li>
-          <li><strong>Calibrate.</strong> Both sensors flew together from 2012 to 2025 (<span id="n-calib">—</span> clean months). For every region we fit a model that converts MODIS counts into VIIRS-equivalent counts, then apply it backwards to 2001–2011 with a 90% prediction interval. We tested five models, from one ratio for all of Brazil to a regression per region, on years each model had not seen, and kept the most accurate. It has three parameters per region, so it is easy to check and to rerun.</li>
+          <li><strong>Fill the Terra-only years.</strong> Until mid-2002 only Terra flew. Those months are scaled by the Terra-to-(Terra + Aqua) ratio measured in 2003–2011, separately for each calendar month and region.</li>
+          <li><strong>Calibrate.</strong> Both sensors flew together from 2012 to 2025 (<span id="n-calib">—</span> clean months). For every region, a model that converts MODIS counts into VIIRS-equivalent counts is fitted and applied backwards to 2001–2011 with a 90% prediction interval. Five models were tested, from one ratio for all of Brazil to a regression per region, on years each model had not seen, and the most accurate was kept. It has three parameters per region, so it is easy to check and to rerun.</li>
           <li><strong>Check.</strong> Models are trained on 2012–2018 and tested on 2019–2025, and the other way round. Months with reduced satellite coverage are left out of training and flagged in the calendar; when VIIRS has a gap, the calibrated MODIS value fills it.</li>
         </ol>
 

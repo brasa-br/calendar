@@ -334,7 +334,7 @@ function downloadCSV(): void {
   const blob = new Blob([[header, ...lines].join("\n") + "\n"], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `firecalendar_${current.region}_${state.from}-${state.to}.csv`;
+  a.download = `brasa_${current.region}_${state.from}-${state.to}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -410,7 +410,7 @@ async function init(): Promise<void> {
     await update({});
     renderMethod();
   } catch (err) {
-    showError(`FireCalendar could not load its data. Reload the page to try again. (${(err as Error).message})`);
+    showError(`Brasa could not load its data. Reload the page to try again. (${(err as Error).message})`);
     return;
   }
   // Secondary data: map boundaries, every region for map totals, validation points.

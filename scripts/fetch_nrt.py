@@ -32,7 +32,7 @@ CHUNKS = RAW / "api_chunks"
 API = "https://firms.modaps.eosdis.nasa.gov/api"
 BBOX = "-74,-34,-34,6"  # Brazil; the pipeline clips to IBGE state boundaries afterwards
 DAY_RANGE = 5           # API maximum
-UA = {"User-Agent": "firecalendar-pipeline/0.1"}
+UA = {"User-Agent": "brasa-pipeline/0.1"}
 
 PRODUCTS = {
     "modis": ("MODIS_SP", "MODIS_NRT"),

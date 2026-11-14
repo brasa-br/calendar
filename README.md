@@ -1,8 +1,8 @@
-# FireCalendar
+# Brasa
 
-**25 years of fire in Brazil, one consistent record.**
+**25 years of fire in Brazil, one consistent record.** *Brasa* is Portuguese for *ember*.
 
-In January 2012 Brazil appeared to start burning three times as much as before. It didn't. NASA had started counting fires with a sharper satellite instrument. FireCalendar removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025, for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area. On a consistent record, this year can be compared with every year since 2001, months before the fire season peaks.
+In January 2012 Brazil appeared to start burning three times as much as before. It didn't. The record had switched to a sharper satellite instrument, while the old one kept flying. Brasa removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025, for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area. On a consistent record, this year can be compared with every year since 2001, months before the fire season peaks.
 
 **[Open the calendar](<SITE_URL>)** | [30-second demo](<VIDEO_URL>) | [Method](docs/METHODOLOGY.md) | [Design decisions](docs/DECISIONS.md) | [Download all data (CSV)](web/public/data/all_regions_monthly.csv)
 
@@ -13,7 +13,7 @@ Built in Campinas for the NASA Space Apps Challenge 2026, for the challenge *Har
   <img alt="Annual hotspots in Brazil, 2001 to 2025. The naive splice (red, dashed) is flat around 0.5 million per year until 2011, then jumps to 1.5 million in 2012. The harmonized record (green, with a shaded 90% band before 2012) stays at the same level across 2012. MODIS alone (grey) shows no jump." src="docs/img/before-after-light.png">
 </picture>
 
-<sub>Annual hotspots in Brazil. Red: the two records joined as they are. Green: FireCalendar, on a single VIIRS-equivalent scale, with a 90% band where values are estimated. Grey: MODIS alone, which never changed sensor.</sub>
+<sub>Annual hotspots in Brazil. Red: the two records joined as they are. Green: Brasa, on a single VIIRS-equivalent scale, with a 90% band where values are estimated. Grey: MODIS alone, which never changed sensor.</sub>
 
 ---
 
@@ -23,7 +23,7 @@ The two instruments see the same fires differently. VIIRS has 375 m pixels and M
 
 The two calendars below show the same months and use the same colour scale.
 
-| Naive splice: MODIS until 2011, then VIIRS | FireCalendar: harmonized |
+| Naive splice: MODIS until 2011, then VIIRS | Brasa: harmonized |
 |---|---|
 | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/img/calendar-naive-dark.png"><img alt="Calendar heatmap with pale rows until 2011 and dark red rows from 2012 onwards" src="docs/img/calendar-naive-light.png"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/img/calendar-harmonized-dark.png"><img alt="Calendar heatmap with a consistent intensity across 2012" src="docs/img/calendar-harmonized-light.png"></picture> |
 
@@ -34,7 +34,7 @@ The trend tests on Brazil's annual totals give the same verdict:
 | Brazil, 2001–2025 | Step from 2009–11 to 2012–14 | Change point (Pettitt) | Trend (Mann-Kendall + Sen) |
 |---|---|---|---|
 | Naive splice | **3.19×** | 2012, p < 0.001 | **+5.6% per year**, p < 0.001 |
-| FireCalendar, harmonized | **0.84×** | none at 2012 | −2.1% per year, p = 0.038 |
+| Brasa, harmonized | **0.84×** | none at 2012 | −2.1% per year, p = 0.038 |
 | MODIS alone (reference, no sensor change) | 0.84× | none at 2012 | −1.6% per year, p = 0.18 |
 
 The harmonized step equals the MODIS-only step to two decimal places. The rise in the naive record came from the sensor change, not from more fires.
@@ -69,7 +69,7 @@ All counts below are harmonized hotspots (VIIRS-equivalent) for 2001–2025. The
 
 ## Early warning: how this year compares
 
-Fire crews and budgets are planned around the usual season. FireCalendar adds up a year's hotspots month by month and draws every earlier year behind it. A year that runs ahead of all of them is a warning months before the peak. This comparison only works on a harmonized record: on the naive splice, every year since 2012 looks like a record year.
+Fire crews and budgets are planned around the usual season. Brasa adds up a year's hotspots month by month and draws every earlier year behind it. A year that runs ahead of all of them is a warning months before the peak. This comparison only works on a harmonized record: on the naive splice, every year since 2012 looks like a record year.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/season-pantanal-2020-dark.png">
@@ -247,4 +247,4 @@ All data was accessed on 14 November 2026.
 
 The site uses the Public Sans typeface (SIL Open Font License) and the Space Apps logo as provided by the organizers. No NASA insignia is used.
 
-The code is released under the MIT licence, and the FIRMS data is NASA open data. FireCalendar is not an official NASA product.
+The code is released under the MIT licence, and the FIRMS data is NASA open data. Brasa is not an official NASA product.

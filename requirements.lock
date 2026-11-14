@@ -12,14 +12,14 @@ contourpy==1.4.0
 cycler==0.12.1
     # via matplotlib
 duckdb==1.1.3
-    # via firecalendar (pyproject.toml)
+    # via brasa (pyproject.toml)
 fonttools==4.68.0
     # via matplotlib
 geobr==0.2.2
-    # via firecalendar (pyproject.toml)
+    # via brasa (pyproject.toml)
 geopandas==1.0.1
     # via
-    #   firecalendar (pyproject.toml)
+    #   brasa (pyproject.toml)
     #   geobr
 html5lib==1.1
     # via geobr
@@ -30,10 +30,10 @@ kiwisolver==1.5.1
 lxml==5.4.0
     # via geobr
 matplotlib==3.9.3
-    # via firecalendar (pyproject.toml)
+    # via brasa (pyproject.toml)
 numpy==2.1.3
     # via
-    #   firecalendar (pyproject.toml)
+    #   brasa (pyproject.toml)
     #   contourpy
     #   geopandas
     #   matplotlib
@@ -55,7 +55,7 @@ packaging==26.3
     #   topojson
 pandas==2.2.3
     # via
-    #   firecalendar (pyproject.toml)
+    #   brasa (pyproject.toml)
     #   geopandas
     #   statsmodels
 patsy==1.0.3
@@ -63,9 +63,9 @@ patsy==1.0.3
 pillow==13.0.0
     # via matplotlib
 pyarrow==18.1.0
-    # via firecalendar (pyproject.toml)
+    # via brasa (pyproject.toml)
 pymannkendall==1.4.3
-    # via firecalendar (pyproject.toml)
+    # via brasa (pyproject.toml)
 pyogrio==0.13.0
     # via geopandas
 pyparsing==3.3.3
@@ -82,21 +82,21 @@ requests==2.34.2
     # via geobr
 scipy==1.14.1
     # via
-    #   firecalendar (pyproject.toml)
+    #   brasa (pyproject.toml)
     #   pymannkendall
     #   statsmodels
 shapely==2.0.6
     # via
-    #   firecalendar (pyproject.toml)
+    #   brasa (pyproject.toml)
     #   geobr
     #   geopandas
     #   topojson
 six==1.17.0
     # via html5lib
 statsmodels==0.14.4
-    # via firecalendar (pyproject.toml)
+    # via brasa (pyproject.toml)
 topojson==1.9
-    # via firecalendar (pyproject.toml)
+    # via brasa (pyproject.toml)
 tzdata==2026.6
     # via
     #   pandas

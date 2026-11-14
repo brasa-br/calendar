@@ -12,7 +12,7 @@ from pathlib import Path
 
 BASE = "https://firms.modaps.eosdis.nasa.gov/data/country"
 OUT = Path(__file__).resolve().parent.parent / "data" / "raw" / "firms"
-UA = {"User-Agent": "firecalendar-pipeline/0.1"}
+UA = {"User-Agent": "brasa-pipeline/0.1"}
 
 
 def jobs() -> list[tuple[str, int]]:
