@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/img/logo.png" alt="Brasa logo: flames over a map of Brazil and a satellite, with the words Brasa, 25 years of fire in Brazil" width="260"></p>
+
 # Brasa
 
 **25 years of fire in Brazil, one consistent record.** *Brasa* is Portuguese for *ember*.
