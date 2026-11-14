@@ -4,7 +4,6 @@ Outputs (data/interim/):
   monthly.parquet   region_id, sensor, platform, ym, n, n_all, n_day, fire_days
   coverage.parquet  sensor, platform, ym, days_with_detections
   versions.parquet  sensor, year, version, n
-  grid025.parquet   sensor, year, cell, n   (stretch map)
   build_meta.json
 """
 from __future__ import annotations
@@ -89,17 +88,6 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> dict:
     con.execute(f"""
     COPY (SELECT sensor, year(date) AS year, version, count(*) AS n FROM det GROUP BY ALL)
     TO '{C.INTERIM / "versions.parquet"}' (FORMAT parquet)
-    """)
-    g = C.MAP_CELL
-    con.execute(f"""
-    COPY (
-      SELECT d.sensor, year(d.date) AS year,
-             CAST(floor(d.lat/{g}) AS INTEGER) AS iy, CAST(floor(d.lon/{g}) AS INTEGER) AS ix,
-             count(*) AS n
-      FROM det d JOIN (SELECT DISTINCT lat2, lon2 FROM memb WHERE region_id='BR') b USING (lat2, lon2)
-      WHERE d.conf IN ({keep})
-      GROUP BY ALL
-    ) TO '{C.INTERIM / "grid025.parquet"}' (FORMAT parquet)
     """)
     total, dropped = con.execute("""
       SELECT count(*), count(*) FILTER (WHERE NOT EXISTS

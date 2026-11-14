@@ -64,6 +64,8 @@ body {
   caret-color: var(--action);
   accent-color: var(--action);
 }
+/* Author display rules (e.g. .key-list li) must not override the hidden attribute. */
+[hidden] { display: none !important; }
 ::selection { background: color-mix(in oklch, var(--action) 30%, transparent); }
 a { color: var(--action); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
 a:hover { text-decoration-thickness: 2px; }
@@ -213,13 +215,14 @@ tbody th { text-align: left; font-weight: 500; }
 
 .prose { max-width: 68ch; }
 .why .prose p, .method .prose p { margin: var(--s3) 0; }
-.steps { padding-left: 1.25em; }
+.steps, .method ul.prose { padding-left: 1.25em; }
 .steps li { margin-bottom: var(--s2); }
 .figure { margin: var(--s5) 0 0; }
 .figure figcaption { font-size: var(--t-small); color: var(--ink-2); margin-top: var(--s2); }
 .figure h3 { margin-top: 0; margin-bottom: var(--s3); }
 .method-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--s6); margin-top: var(--s6); align-items: start; }
 .method-grid > div > h3 { margin-top: 0; margin-bottom: var(--s3); }
+.method-grid > .figure { margin-top: 0; }
 .metrics th:first-child { text-align: left; white-space: normal; }
 .metrics tr.is-selected th, .metrics tr.is-selected td { font-weight: 650; }
 .metrics th span { font-weight: 400; color: var(--action); }
@@ -254,7 +257,7 @@ tbody th { text-align: left; font-weight: 500; }
 .key-median { border-top: 2px dashed var(--ink-2); }
 .key-other { opacity: 0.5; }
 .season h3 { margin-top: var(--s5); }
-.records { list-style: none; padding: 0; margin: var(--s2) 0 0; display: grid; gap: var(--s2); max-width: 68ch; }
+.records { list-style: none; padding: 0; margin: var(--s2) 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--s3) var(--s5); }
 .records li { font-variant-numeric: tabular-nums; }
 .records strong { font-weight: 650; margin-right: var(--s2); }
 .records span { display: block; color: var(--ink-2); font-size: var(--t-small); }
@@ -262,3 +265,13 @@ tbody th { text-align: left; font-weight: 500; }
 .linklike { font: inherit; color: var(--action); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
 .linklike:hover { text-decoration-thickness: 2px; }
 .linklike:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+/* Observable Plot tooltips default to a white box; follow the theme instead. */
+svg { --plot-background: var(--surface); }
+/* Plot wraps charts with legends in its own <figure>; drop the UA 40px side margins that shrink the chart. */
+.figure figure, #season-host figure { margin: 0; }
+
+.metrics thead .unit { display: block; font-weight: 400; color: var(--ink-2); }
+@media (max-width: 480px) {
+  .metrics { font-size: var(--t-small); }
+}

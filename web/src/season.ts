@@ -112,7 +112,10 @@ export function renderSeason(host: HTMLElement, r: SeasonResult, width: number):
       Plot.line(focus, { x: "m", y: "v", stroke: css("--bar"), strokeWidth: 3 }),
       Plot.dot(focus.slice(-1), { x: "m", y: "v", fill: css("--bar"), r: 4.5 }),
       Plot.text(focus.slice(-1), { x: "m", y: "v", text: () => String(r.focus), dx: 8, textAnchor: "start", fill: css("--ink"), fontWeight: 650, fontSize: 13 }),
-      Plot.tip(others, Plot.pointer({ x: "m", y: "v", title: (d: { y: number; m: number; v: number }) => `${d.y}, end of ${MONTHS[d.m]}: ${fmtInt.format(d.v)}` })),
+      Plot.tip([...others, ...focus.map((d) => ({ ...d, y: r.focus }))], Plot.pointer({
+        x: "m", y: "v", stroke: css("--rule"),
+        title: (d: { y: number; m: number; v: number }) => `${d.y}, end of ${MONTHS_LONG[d.m]}: ${fmtInt.format(d.v)} hotspots`,
+      })),
     ],
   });
   chart.setAttribute("role", "img");

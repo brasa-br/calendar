@@ -173,7 +173,7 @@ function renderSeasonNow(name: string): void {
   }
   const partial = r.last < 11;
   verdict.textContent = seasonVerdict(r, name, partial) + (partial ? " Provisional: recent months use near-real-time data." : "");
-  renderSeason(host, r, Math.min(host.clientWidth || 720, 900));
+  renderSeason(host, r, host.clientWidth || 720);
   wrap.hidden = !r.monthRecords.length;
   $("season-records").innerHTML = r.monthRecords
     .map((x) => `<li><strong>${MONTHS[x.m]} ${r.focus}</strong> ${fmtInt.format(x.value)} hotspots <span>Previous highest ${MONTHS[x.m]}: ${fmtInt.format(x.prevMax)} in ${x.prevYear}</span></li>`)
@@ -360,10 +360,10 @@ function renderMethod(): void {
   const rows = Object.entries(meta.cv_summary)
     .map(([k, m]) => {
       const sel = k === meta!.selected_model;
-      return `<tr${sel ? ' class="is-selected"' : ""}><th scope="row">${desc[k] ?? k}${sel ? " <span>(used)</span>" : ""}</th><td>${fmt2.format(m.rmse_log)}</td><td>${fmt2.format(m.r2_log)}</td><td>${Math.round(100 * m.mean_abs_bias)}%</td></tr>`;
+      return `<tr${sel ? ' class="is-selected"' : ""}><th scope="row">${desc[k] ?? k}${sel ? " <span>(used)</span>" : ""}</th><td>${fmt2.format(m.rmse_log)}</td><td>${m.r2_log < 0 ? fmtSigned(m.r2_log, fmt2) : fmt2.format(m.r2_log)}</td><td>${Math.round(100 * m.mean_abs_bias)}%</td></tr>`;
     })
     .join("");
-  $("metrics").innerHTML = `<caption class="visually-hidden">Cross-validated model comparison</caption><thead><tr><th scope="col">Model</th><th scope="col">Error (RMSE, log)</th><th scope="col">R² (log)</th><th scope="col">Mean absolute bias</th></tr></thead><tbody>${rows}</tbody>`;
+  $("metrics").innerHTML = `<caption class="visually-hidden">Cross-validated model comparison</caption><thead><tr><th scope="col">Model</th><th scope="col">RMSE <span class="unit">(log)</span></th><th scope="col">R² <span class="unit">(log)</span></th><th scope="col">Bias <span class="unit">(mean abs.)</span></th></tr></thead><tbody>${rows}</tbody>`;
   const s = meta.sensitivity_br_ratio;
   $("sensitivity").textContent =
     `In Brazil, VIIRS reports ${fmt2.format(s.default_nominal_high)}× the hotspots of MODIS over 2012–2025 ` +

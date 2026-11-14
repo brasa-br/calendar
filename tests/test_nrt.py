@@ -43,3 +43,13 @@ def test_last_complete_month():
     assert last_complete_month("2025-12-31") == "2025-12"
     assert last_complete_month("2026-11-13") == "2026-10"
     assert last_complete_month("2026-10-31") == "2026-10"
+
+
+def test_archive_layout_mixed_sp_and_nrt_rows_keep_all():
+    sp = pd.DataFrame({"latitude": [-5.0], "longitude": [-60.0], "acq_date": ["2026-03-01"], "acq_time": ["1200"],
+                       "satellite": ["N"], "confidence": ["n"], "daynight": ["D"], "type": [0]})
+    nrt_rows = pd.DataFrame({"latitude": [-6.0, -7.0], "longitude": [-61.0, -62.0], "acq_date": ["2026-09-01"] * 2,
+                             "acq_time": ["0400", "1600"], "satellite": ["N", "N"], "confidence": ["h", "l"],
+                             "daynight": ["N", "D"]})
+    out = nrt.to_archive_layout(pd.concat([sp, nrt_rows], ignore_index=True), "viirs-snpp", {(-7.0, -62.0)})
+    assert out["type"].tolist() == [0, 0, 2]

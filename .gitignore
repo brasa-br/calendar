@@ -9,7 +9,6 @@ node_modules/
 web/dist/
 .DS_Store
 *.log
-web/public/data/grid/
 *.egg-info/
 .env.*
 !.env.example

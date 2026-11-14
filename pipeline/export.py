@@ -238,25 +238,9 @@ def main() -> None:
         sc = sc.sample(2000, random_state=1)
     dump(C.WEB_DATA / "validation.json", {"model": best, "points": sc.to_dict("records")})
     dump(C.WEB_DATA / "regions.json", regs)
-    export_grid()
     export_boundaries(bounds)
     print(json.dumps(_clean({k: proof[k] for k in ("naive", "harmonized", "modis_raw")}), indent=1))
     print("sensitivity", sens)
-
-
-def export_grid() -> None:
-    g = pd.read_parquet(C.INTERIM / "grid025.parquet")
-    br = json.loads((C.WEB_DATA / "meta.json").read_text())["k_global_viirs_per_modis"]
-    for y in sorted(g.year.unique()):
-        d = g[g.year == y]
-        if y >= 2012:
-            d = d[d.sensor == "VIIRS"]
-            vals = d[["iy", "ix", "n"]].values.tolist()
-        else:
-            d = d[d.sensor == "MODIS"]
-            vals = [[a, b, int(round(n * br))] for a, b, n in d[["iy", "ix", "n"]].values]
-        dump(C.WEB_DATA / "grid" / f"{y}.json", {"cell": C.MAP_CELL, "year": int(y),
-                                                 "estimated": bool(y < 2012), "cells": vals})
 
 
 def export_boundaries(b) -> None:

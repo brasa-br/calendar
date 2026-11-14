@@ -143,9 +143,10 @@ def to_archive_layout(df: pd.DataFrame, product: str, cells: set[tuple[float, fl
     df.columns = [c.strip().lower() for c in df.columns]
     if "satellite" in df:
         df["satellite"] = df["satellite"].astype(str).map(lambda s: SATELLITE.get(s, s))
-    if "type" not in df or df["type"].isna().all():
-        key = list(zip(df.latitude.round(2), df.longitude.round(2)))
-        df["type"] = [2 if k in cells else 0 for k in key]
+    # SP rows may carry `type` while NRT rows do not; fill row by row so mixed frames keep both.
+    known = pd.to_numeric(df["type"], errors="coerce") if "type" in df else pd.Series(float("nan"), index=df.index)
+    guess = pd.Series([2 if k in cells else 0 for k in zip(df.latitude.round(2), df.longitude.round(2))], index=df.index)
+    df["type"] = known.fillna(guess).astype(int)
     df["acq_time"] = df["acq_time"].astype(str).str.zfill(4)
     for c in ARCHIVE_COLS[product]:
         if c not in df:

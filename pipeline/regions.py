@@ -54,7 +54,7 @@ def build_lookup(coords: pd.DataFrame, b: dict[str, gpd.GeoDataFrame]) -> pd.Dat
     out["uf"] = join(b["states"], "uf")
     out["biome"] = join(b["biomes"], "biome")
     rmc = b["rmc"].assign(in_rmc=True)
-    out["is_rmc"] = join(rmc, "in_rmc").fillna(False).astype(bool)
+    out["is_rmc"] = join(rmc, "in_rmc").notna()
     return out
 
 

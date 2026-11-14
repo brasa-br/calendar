@@ -24,7 +24,6 @@ KEEP_CONF = ("nominal", "high")
 # Region assignment grid (degrees) for point->polygon lookup
 LOOKUP_ROUND = 2                  # 0.01 deg
 FIREDAY_CELL = 0.1                # robustness metric cell size
-MAP_CELL = 0.25                   # stretch grid map
 
 # Harmonization (spec §5)
 OVERLAP_START = "2012-01"
