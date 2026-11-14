@@ -6,7 +6,7 @@
 
 In January 2012 Brazil appeared to start burning three times as much as before. It didn't. The record had switched to a sharper satellite instrument, while the old one kept flying. Brasa removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025, for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area. On a consistent record, this year can be compared with every year since 2001, months before the fire season peaks.
 
-**[Open the calendar](<SITE_URL>)** | [30-second demo](<VIDEO_URL>) | [Method](docs/METHODOLOGY.md) | [Design decisions](docs/DECISIONS.md) | [Download all data (CSV)](web/public/data/all_regions_monthly.csv)
+**[Open the calendar](https://brasa-br.github.io/calendar/)** | [30-second demo](<VIDEO_URL>) | [Method](docs/METHODOLOGY.md) | [Design decisions](docs/DECISIONS.md) | [Download all data (CSV)](web/public/data/all_regions_monthly.csv)
 
 Built in Campinas for the NASA Space Apps Challenge 2026, for the challenge *Harmonization of MODIS and VIIRS Hot Spots*.
 
