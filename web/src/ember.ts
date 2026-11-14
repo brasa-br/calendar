@@ -238,12 +238,16 @@ export class EmberMap {
     ctx.imageSmoothingEnabled = true;
     ctx.globalCompositeOperation = "lighter";
     // soft glow, then the embers themselves
-    ctx.filter = `blur(${Math.round(5 * this.dpr)}px)`;
-    ctx.globalAlpha = 0.75;
+    // On narrow screens a 0.25° cell is only 1-2 px wide, so the embers get a wider glow and a
+    // second additive pass to stay as legible as on desktop.
+    const narrow = c.width / this.dpr < 600;
+    ctx.filter = `blur(${Math.round((narrow ? 3 : 5) * this.dpr)}px)`;
+    ctx.globalAlpha = narrow ? 1 : 0.75;
     ctx.drawImage(this.small, x, y, w, h);
     ctx.filter = "none";
     ctx.globalAlpha = 1;
     ctx.drawImage(this.small, x, y, w, h);
+    if (narrow) ctx.drawImage(this.small, x, y, w, h);
     ctx.globalCompositeOperation = "source-over";
     if (this.highlight && this.pantanal && this.path) {
       ctx.beginPath();

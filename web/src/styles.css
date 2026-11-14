@@ -131,6 +131,7 @@ h3 { font-size: var(--t-h3); font-weight: 650; line-height: 1.3; margin-top: var
 .hero-story:hover { color: var(--ember-hot); text-decoration-thickness: 2px; }
 .hero-map { margin: 0; }
 .hero-map canvas { display: block; width: 100%; }
+#ember { width: 100%; }
 .hero-note { margin-top: var(--s2); font-size: var(--t-small); color: var(--night-ink-2); max-width: 70ch; }
 .timeline { margin-top: var(--s4); touch-action: none; cursor: pointer; border-radius: 4px; }
 .timeline svg { display: block; overflow: visible; }
@@ -144,16 +145,20 @@ h3 { font-size: var(--t-h3); font-weight: 650; line-height: 1.3; margin-top: var
 @media (max-width: 860px) {
   /* Phones: name, then the map right away, then the reading of it. */
   .hero-grid { grid-template-columns: 1fr; gap: 0; }
-  .hero-text { display: contents; }
+  .hero-text, .hero-map { display: contents; }
   .hero h1 { order: 1; }
   .tagline { order: 2; }
-  .hero-map { order: 3; margin-top: var(--s5); }
-  .hero-readout { order: 4; margin-top: var(--s4); }
-  .hero-caption { order: 5; }
-  .hero-actions { order: 6; }
-  .hero-stories { order: 7; }
-  .lede { order: 8; }
+  .hero-readout { order: 3; margin-top: var(--s4); grid-template-columns: auto 1fr; align-items: baseline; gap: var(--s3); }
+  .hero-month { font-size: 1.75rem; }
+  .hero-map canvas { order: 4; margin-top: var(--s3); }
+  .timeline { order: 5; margin-top: var(--s2); }
+  .hero-caption { order: 6; min-height: 0; }
+  .hero-actions { order: 7; }
+  .hero-stories { order: 8; }
+  .hero-note { order: 9; margin-top: var(--s4); }
+  .lede { order: 10; }
   .hero-bar { justify-content: flex-start; }
+  .hero nav { gap: var(--s2) var(--s3); }
 }
 
 /* Controls */
