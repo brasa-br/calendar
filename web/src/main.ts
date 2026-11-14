@@ -9,6 +9,7 @@ import { annualRows, renderAnnual, renderBeforeAfter, renderValidation } from ".
 import { renderMap, setTopology, type MapLayer } from "./map";
 import { fmt1, fmt2, fmtInt, fmtP, fmtSigned, mannKendall } from "./stats";
 import { renderSeason, seasonCompare, seasonVerdict } from "./season";
+import { initHero } from "./hero";
 
 interface State { r: string; from: number; to: number; s: SeriesKey; v: ViewKey; layer: MapLayer }
 
@@ -407,6 +408,11 @@ async function init(): Promise<void> {
     state = readState(); // the year range depends on the data span in meta.json
     names = new Map(regions.map((r) => [r.id, r.name]));
     fillControls();
+    initHero(m).catch(() => {
+      $("hero-fallback").hidden = false;
+      for (const el of document.querySelectorAll(".hero-map, .hero-readout, .hero-caption, .hero-actions, .hero-stories"))
+        el.setAttribute("hidden", "");
+    });
     await update({});
     renderMethod();
   } catch (err) {

@@ -90,6 +90,10 @@ Open this case at `?r=BIOME_PAN&to=2020`. With the current year's data from the 
 
 ## Use it
 
+The site opens on an animated map: every 0.25° cell of Brazil glows with its hotspots, month by month from 2001 to 2025, over the national monthly curve. Switch it between **Harmonized** and **Raw record** to watch the 2012 jump appear and disappear, or drag the timeline to any month. *See the 2012 jump* and *The Pantanal in 2020* play those two stories. With reduced motion turned on, the map opens still, on September 2020.
+
+The map is illustrative before 2012: each cell's MODIS detections are scaled by its biome's harmonized/MODIS ratio for that month, then to the national total. The calendar below it carries the official figures.
+
 The site is static: there is no login and nothing to install. All of its state is kept in the URL, so any view can be shared as a link.
 
 | Parameter | Values | Example |
@@ -214,6 +218,7 @@ pipeline/regions.py     IBGE boundaries via geobr, point → state/biome/metro l
 pipeline/harmonize.py   Terra/Aqua adjustment, calibration models C0–C4, prediction intervals
 pipeline/validate.py    Pettitt change point, Mann-Kendall + Sen, step ratio
 pipeline/export.py      cross-validation, final fits, JSON/CSV/TopoJSON for the site
+pipeline/grid.py        monthly 0.25° hotspot grid for the animated map (grid.bin, 1.5 MB)
 web/                    static site
 tests/                  pytest
 ```

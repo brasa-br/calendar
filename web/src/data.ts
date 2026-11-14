@@ -64,7 +64,8 @@ async function getJSON<T>(path: string): Promise<T> {
 export const loadRegions = () => getJSON<Region[]>("regions.json");
 export const loadMeta = () => getJSON<Meta>("meta.json");
 export const loadValidation = () => getJSON<Validation>("validation.json");
-export const loadBoundaries = () => getJSON<unknown>("boundaries.topo.json");
+let boundaries: Promise<unknown> | null = null;
+export const loadBoundaries = () => (boundaries ??= getJSON<unknown>("boundaries.topo.json"));
 
 export function loadSeries(id: string): Promise<Series> {
   let p = cache.get(id);

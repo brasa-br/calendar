@@ -10,8 +10,7 @@
     <meta property="og:image" content="https://brasa-br.github.io/calendar/img/og.png" />
     <meta property="og:url" content="https://brasa-br.github.io/calendar/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#14181a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0d1117" />
     <link rel="icon" href="./img/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,18 +18,44 @@
   </head>
   <body>
     <a class="skip" href="#calendar-section">Skip to calendar</a>
-    <header class="masthead">
-      <div class="wrap masthead-inner">
-        <div>
-          <h1>Brasa</h1>
-          <p class="lede">25 years of fire in Brazil, one consistent record. NASA MODIS and VIIRS satellite hotspots, harmonized month by month, so any year can be compared with every year since 2001.</p>
-        </div>
+    <header class="hero" id="hero">
+      <div class="wrap hero-bar">
         <nav aria-label="Page">
+          <a href="#calendar-section">Calendar</a>
           <a href="#why">Why harmonize</a>
           <a href="#method">Method</a>
           <a href="https://github.com/brasa-br/calendar" id="repo-link" rel="noopener">Source code</a>
         </nav>
       </div>
+      <div class="wrap hero-grid">
+        <div class="hero-text">
+          <h1>Brasa</h1>
+          <p class="tagline">25 years of fire in Brazil, one consistent record.</p>
+          <p class="lede">NASA satellites have mapped every fire hotspot in Brazil since 2000, but in 2012 the record switched to a sharper instrument. Brasa calibrates the two into one scale, so any month can be compared with every month since 2001.</p>
+          <div class="hero-readout" aria-live="polite" aria-atomic="true">
+            <span class="hero-month" id="hero-month">&nbsp;</span>
+            <span class="hero-count"><span id="hero-count">&nbsp;</span> hotspots in Brazil</span>
+          </div>
+          <p class="hero-caption" id="hero-caption">&nbsp;</p>
+          <div class="hero-actions">
+            <div class="segmented segmented-dark" id="hero-mode" role="radiogroup" aria-label="Record shown on the map">
+              <label><input type="radio" name="hm" value="harmonized" checked /><span>Harmonized</span></label>
+              <label><input type="radio" name="hm" value="raw" /><span>Raw record</span></label>
+            </div>
+            <button type="button" class="hero-btn" id="hero-play" aria-pressed="false">Play</button>
+          </div>
+          <div class="hero-stories">
+            <button type="button" class="hero-story" id="hero-2012">See the 2012 jump</button>
+            <button type="button" class="hero-story" id="hero-2020">The Pantanal in 2020</button>
+          </div>
+        </div>
+        <figure class="hero-map">
+          <canvas id="ember" role="img" aria-label="Map of Brazil where each fire hotspot glows, month by month from 2001 to 2025."></canvas>
+          <div class="timeline" id="ember-timeline"></div>
+          <figcaption class="hero-note">Hotspots per 0.25° cell. NASA FIRMS MODIS and VIIRS. Before 2012 the map is an illustrative spread of the harmonized totals; the figures in the calendar below are the official ones.</figcaption>
+        </figure>
+      </div>
+      <p class="wrap hero-fallback" id="hero-fallback" hidden>The animated map could not be loaded. The calendar below has all the data.</p>
     </header>
 
     <form class="controls" id="controls" aria-label="Calendar controls">
