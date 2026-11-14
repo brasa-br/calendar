@@ -10,6 +10,10 @@ In January 2012 Brazil appeared to start burning three times as much as before. 
 
 Built in Campinas for the NASA Space Apps Challenge 2026, for the challenge *Harmonization of MODIS and VIIRS Hot Spots*.
 
+<a href="https://brasa-br.github.io/calendar/"><img src="docs/img/site-hero.jpg" alt="The Brasa site opening on its animated map: Brazil at night, each 0.25-degree cell glowing with its fire hotspots for September 2020, the worst month for the Pantanal, above the national monthly curve from 2001 to 2026." width="100%"></a>
+
+**Contents:** [The 2012 trap](#the-2012-trap) | [What the consistent record shows](#what-the-consistent-record-shows) | [Early warning](#early-warning-how-this-year-compares) | [Use it](#use-it) | [How it works](#how-it-works) | [Run it yourself](#run-it-yourself) | [Limits](#limits) | [Data and credits](#data-and-credits)
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/before-after-dark.png">
   <img alt="Annual hotspots in Brazil, 2001 to 2025. The naive splice (red, dashed) is flat around 0.5 million per year until 2011, then jumps to 1.5 million in 2012. The harmonized record (green, with a shaded 90% band before 2012) stays at the same level across 2012. MODIS alone (grey) shows no jump." src="docs/img/before-after-light.png">
