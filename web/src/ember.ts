@@ -333,9 +333,10 @@ export class EmberMap {
     if (split > 0) {
       svg.append("line").attr("class", "tl-split").attr("x1", this.x(split)).attr("x2", this.x(split)).attr("y1", m.t).attr("y2", height - m.b);
     }
-    const years = [2001, 2005, 2012, 2016, 2020, 2025].filter((yy) => this.months.includes(`${yy}-01`));
+    const lastY = +this.months[this.months.length - 1].slice(0, 4);
+    const years = [2001, 2005, 2012, 2016, 2020, lastY].filter((yy, k, a) => a.indexOf(yy) === k && this.months.includes(`${yy}-01`));
     const narrow = width < 520;
-    svg.append("g").selectAll("text").data(years.filter((yy) => !narrow || [2001, 2012, 2020, 2025].includes(yy))).join("text")
+    svg.append("g").selectAll("text").data(years.filter((yy) => !narrow || [2001, 2012, 2020, lastY].includes(yy))).join("text")
       .attr("class", (yy) => (yy === 2012 ? "tl-year tl-year-split" : "tl-year"))
       .attr("x", (yy) => this.x(this.months.indexOf(`${yy}-01`)))
       .attr("y", height - 6)

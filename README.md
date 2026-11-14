@@ -4,7 +4,7 @@
 
 **25 years of fire in Brazil, one consistent record.** *Brasa* is Portuguese for *ember*.
 
-In January 2012 Brazil appeared to start burning three times as much as before. It didn't. The record had switched to a sharper satellite instrument, while the old one kept flying. Brasa removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025, for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area. On a consistent record, this year can be compared with every year since 2001, months before the fire season peaks.
+In January 2012 Brazil appeared to start burning three times as much as before. It didn't. The record had switched to a sharper satellite instrument, while the old one kept flying. Brasa removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025 plus 2026 so far (January to October, provisional), for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area. On a consistent record, this year can be compared with every year since 2001, months before the fire season peaks.
 
 **[Open the calendar](https://brasa-br.github.io/calendar/)** | [30-second demo](<VIDEO_URL>) | [Method](docs/METHODOLOGY.md) | [Design decisions](docs/DECISIONS.md) | [Download all data (CSV)](web/public/data/all_regions_monthly.csv)
 
@@ -90,7 +90,7 @@ Open this case at `?r=BIOME_PAN&to=2020`. With the current year's data from the 
 
 ## Use it
 
-The site opens on an animated map: every 0.25° cell of Brazil glows with its hotspots, month by month from 2001 to 2025, over the national monthly curve. Switch it between **Harmonized** and **Raw record** to watch the 2012 jump appear and disappear, or drag the timeline to any month. *See the 2012 jump* and *The Pantanal in 2020* play those two stories. With reduced motion turned on, the map opens still, on September 2020.
+The site opens on an animated map: every 0.25° cell of Brazil glows with its hotspots, month by month from 2001 to October 2026, over the national monthly curve. Switch it between **Harmonized** and **Raw record** to watch the 2012 jump appear and disappear, or drag the timeline to any month. *See the 2012 jump* and *The Pantanal in 2020* play those two stories. With reduced motion turned on, the map opens still, on September 2020.
 
 The map is illustrative before 2012: each cell's MODIS detections are scaled by its biome's harmonized/MODIS ratio for that month, then to the national total. The calendar below it carries the official figures.
 
@@ -119,7 +119,7 @@ The site is static: there is no login and nothing to install. All of its state i
 
 ### Data you can download
 
-[`web/public/data/all_regions_monthly.csv`](web/public/data/all_regions_monthly.csv) holds all 35 regions with one row per month from 2000-11 to 2025-12 (about 600 KB). The download button on the site exports the current selection in the same format.
+[`web/public/data/all_regions_monthly.csv`](web/public/data/all_regions_monthly.csv) holds all 35 regions with one row per month from 2000-11 to 2026-10 (about 600 KB; 2026 is provisional). The download button on the site exports the current selection in the same format.
 
 | Column | Meaning |
 |---|---|

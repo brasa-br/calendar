@@ -11,11 +11,17 @@ export async function initHero(meta: Meta | null): Promise<void> {
   const [grid, topology, national] = await Promise.all([loadGrid(), loadBoundaries(), loadSeries("BR")]);
   const ratio = meta?.k_global_viirs_per_modis ?? 3.8;
   const split = grid.meta.overlap_start;
+  const months = grid.meta.months;
+  const lastYear = months[months.length - 1].slice(0, 4);
+  const provFrom = meta?.provisional?.from ?? "9999-99";
+  canvas.setAttribute("aria-label", `Map of Brazil where each fire hotspot glows, month by month from 2001 to ${lastYear}.`);
   let story: "2012" | "2020" | null = null;
   let timer = 0;
 
   const caption = (ym: string, mode: EmberMode): string => {
     const y = +ym.slice(0, 4);
+    if (ym >= provFrom && !story)
+      return `${y}, provisional: near-real-time VIIRS data, updated until the yearly archive is published.`;
     if (story === "2020" && y >= 2019 && y <= 2020)
       return y === 2020
         ? "Pantanal, 2020: ahead of every earlier year from January, long before the September peak. About 30% of the biome burned."
@@ -26,7 +32,7 @@ export async function initHero(meta: Meta | null): Promise<void> {
       return "Raw record: VIIRS from 2012 on. Next to it, every year before 2012 looks small.";
     }
     if (y >= 2010 && y <= 2013) return "Harmonized: the MODIS years are calibrated onto the VIIRS scale. No jump in 2012.";
-    return "Harmonized: one scale from 2001 to 2025. Brighter cells had more hotspots that month.";
+    return `Harmonized: one scale from 2001 to ${lastYear}. Brighter cells had more hotspots that month.`;
   };
 
   const map = new EmberMap({
@@ -74,10 +80,11 @@ export async function initHero(meta: Meta | null): Promise<void> {
     endStory();
     story = "2012";
     setMode("raw");
-    map.play(at("2010-01"), at("2012-12"), 9, () => {
+    // End both passes on the September 2012 peak, where the jump is largest.
+    map.play(at("2010-01"), at("2012-09"), 9, () => {
       timer = window.setTimeout(() => {
         setMode("harmonized");
-        map.play(at("2010-01"), at("2012-12"), 9, () => (story = null));
+        map.play(at("2010-01"), at("2012-09"), 9, () => (story = null));
       }, 1600);
     });
   });
@@ -86,7 +93,7 @@ export async function initHero(meta: Meta | null): Promise<void> {
     story = "2020";
     setMode("harmonized");
     map.setHighlight(true);
-    map.play(at("2019-10"), at("2020-09"), 4);
+    map.play(at("2019-10"), at("2020-09"), 2.5);
   });
 
   let lastW = canvas.clientWidth;
