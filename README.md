@@ -1,102 +1,228 @@
 # FireCalendar
 
-**25 years of fire in Brazil, one consistent record.** FireCalendar harmonizes NASA's two satellite fire records, MODIS (2000 to today) and VIIRS (2012 to today), into a single month-by-month calendar for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area.
+**25 years of fire in Brazil, one consistent record.**
 
-- **Live site:** _add GitHub Pages URL_
-- **Demo video (30 s):** _add link_
-- **Challenge:** NASA Space Apps Challenge 2026, [Harmonization of MODIS and VIIRS Hot Spots](https://www.spaceappschallenge.org/2026/challenges/)
+In January 2012 Brazil appeared to start burning three times as much as before. It didn't. NASA had started counting fires with a sharper satellite instrument. FireCalendar removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025, for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area.
 
-## The problem
+**[Open the calendar](<SITE_URL>)** | [30-second demo](<VIDEO_URL>) | [Method](docs/METHODOLOGY.md) | [Design decisions](docs/DECISIONS.md) | [Download all data (CSV)](web/public/data/all_regions_monthly.csv)
 
-VIIRS has 375 m pixels; MODIS has 1 km pixels. VIIRS sees smaller fires, so in Brazil it reports **3.77×** as many hotspots as MODIS over the same months. Joining the two records naively makes fire activity appear to **jump 3.2× in 2012**, and turns a flat or falling record into a false rising trend of **+5.6% per year** (Mann-Kendall p < 0.001). The jump is the sensor, not the fires.
+Built in Campinas for the NASA Space Apps Challenge 2026, for the challenge *Harmonization of MODIS and VIIRS Hot Spots*.
 
-## What FireCalendar does
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/before-after-dark.png">
+  <img alt="Annual hotspots in Brazil, 2001 to 2025. The naive splice (red, dashed) is flat around 0.5 million per year until 2011, then jumps to 1.5 million in 2012. The harmonized record (green, with a shaded 90% band before 2012) stays at the same level across 2012. MODIS alone (grey) shows no jump." src="docs/img/before-after-light.png">
+</picture>
 
-1. **Calendar heatmap** (years × months) of hotspots for any region and period, with the peak month, the typical fire season and the long-term trend (Mann-Kendall + Sen's slope).
-2. **Four views of the same data:** harmonized, naive splice, MODIS only and VIIRS only. Switching between them shows the 2012 artefact appear and disappear.
-3. **Uncertainty is visible.** Months estimated from MODIS carry a marker and a 90% prediction interval; months with reduced satellite coverage are hatched.
-4. **Map** of states or biomes; click to open a calendar.
-5. **CSV download** of the current selection, plus the full dataset for all 35 regions.
-6. **Accessible:** colour-blind-safe sequential (YlOrRd) and diverging (PuOr) scales, keyboard navigation of the calendar, and a table version of every calendar.
+<sub>Annual hotspots in Brazil. Red: the two records joined as they are. Green: FireCalendar, on a single VIIRS-equivalent scale, with a 90% band where values are estimated. Grey: MODIS alone, which never changed sensor.</sub>
 
-## NASA data used
+---
 
-| Dataset | Use |
+## The 2012 trap
+
+The two instruments see the same fires differently. VIIRS has 375 m pixels and MODIS has 1 km pixels, so VIIRS picks up small fires that MODIS misses. Over the months both sensors observed Brazil, **VIIRS reported 3.77 hotspots for every MODIS hotspot**.
+
+The two calendars below show the same months and use the same colour scale.
+
+| Naive splice: MODIS until 2011, then VIIRS | FireCalendar: harmonized |
 |---|---|
-| [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) MODIS Collection 6.1 active fires, Terra + Aqua, yearly country files for Brazil, 2000–2025 (`/data/country/modis/YYYY/modis_YYYY_Brazil.csv`) | The long record (2000–2011) and the calibration partner for VIIRS |
-| [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) VIIRS S-NPP 375 m active fires, yearly country files for Brazil, 2012–2025 (`/data/country/viirs-snpp/YYYY/viirs-snpp_YYYY_Brazil.csv`) | The modern record and the harmonization target |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/img/calendar-naive-dark.png"><img alt="Calendar heatmap with pale rows until 2011 and dark red rows from 2012 onwards" src="docs/img/calendar-naive-light.png"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/img/calendar-harmonized-dark.png"><img alt="Calendar heatmap with a consistent intensity across 2012" src="docs/img/calendar-harmonized-light.png"></picture> |
 
-Accessed 14 November 2026. 28,844,913 vegetation-fire detections after cleaning (18,987,187 VIIRS; 9,857,726 MODIS).
+In the naive splice, the rows change colour at the dashed 2012 line, as if the country had caught fire overnight. After harmonization the line no longer stands out. The small dots mark months estimated from MODIS, and the hatched cells mark months with reduced satellite coverage.
 
-**Other data:** IBGE state (2020), biome (2019) and metropolitan-area (2018) boundaries, through the [geobr](https://github.com/ipeaGIT/geobr) package.
+The trend tests on Brazil's annual totals give the same verdict:
 
-## Method (summary)
+| Brazil, 2001–2025 | Step from 2009–11 to 2012–14 | Change point (Pettitt) | Trend (Mann-Kendall + Sen) |
+|---|---|---|---|
+| Naive splice | **3.19×** | 2012, p < 0.001 | **+5.6% per year**, p < 0.001 |
+| FireCalendar, harmonized | **0.84×** | none at 2012 | −2.1% per year, p = 0.038 |
+| MODIS alone (reference, no sensor change) | 0.84× | none at 2012 | −1.6% per year, p = 0.18 |
 
-Full details: [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
+The harmonized step equals the MODIS-only step to two decimal places. The rise in the naive record came from the sensor change, not from more fires.
 
-1. **Clean:** keep `type = 0` (presumed vegetation fire) and nominal/high confidence; remove exact duplicates.
-2. **Assign** each detection to a state, a biome and the Campinas Metro Area.
-3. **Terra-only months** (Nov 2000 to Aug 2002, before Aqua was fully operational) are scaled by the Terra → Terra+Aqua ratio, fitted on 2003–2011 per calendar month and region.
-4. **Calibrate** MODIS to VIIRS on the 162 clean months in which both flew (2012–2025). Five models were compared with two-fold temporal cross-validation (train 2012–2018, test 2019–2025, and the reverse):
+---
+
+## What the consistent record shows
+
+All counts below are harmonized hotspots (VIIRS-equivalent) for 2001–2025. They come from [`all_regions_monthly.csv`](web/public/data/all_regions_monthly.csv) and can be checked in the site.
+
+**Brazil burns in three months.** August, September and October hold **71%** of all hotspots, and September alone holds 31%. The largest month in the record is **September 2007, with about 1.0 million hotspots**. The years with the most hotspots are 2007, 2005 and 2004. The years with the fewest are **2025** (763,000), 2013 and 2018.
+
+**Each biome has its own calendar:**
+
+| Biome | Hotspots 2001–2025 | Peak month | Share in its top 3 months | Most hotspots in one year | Out-of-sample R² |
+|---|---:|---|---:|---|---:|
+| Amazon | 19.1 M | Sep | 72% | 2005 (1.65 M) | 0.98 |
+| Cerrado | 12.3 M | Sep | 77% | 2010 (1.11 M) | 0.97 |
+| Atlantic Forest | 2.8 M | Sep | 56% | 2003 | 0.98 |
+| Caatinga | 2.5 M | **Oct** | 69% | 2007 | 0.96 |
+| Pantanal | 1.3 M | Sep | 71% | **2020 (185,902)** | 0.98 |
+| Pampa | 0.14 M | **Aug** | 46% | 2020 | 0.89 |
+
+- **The Cerrado has the most concentrated fire season:** 77% of its hotspots fall in August–October.
+- **The Caatinga peaks a month later**, in October.
+- **The Pampa has the least seasonal fire regime** of the six biomes and peaks in August, in the southern winter.
+- **The Pantanal's worst year is 2020.** In 2025 it had 5,280 hotspots, its lowest year in the record.
+
+**The Campinas Metro Area** is small and rarely burns, so it shows the method at its limits. It had 22,852 hotspots in 25 years. Its season comes earlier, peaking in August, with 2010 as its worst year. Its out-of-sample R² is 0.68, the lowest of all 35 regions, so its uncertainty bands are wide, and the site shows them.
+
+---
+
+## Use it
+
+The site is static: there is no login and nothing to install. All of its state is kept in the URL, so any view can be shared as a link.
+
+| Parameter | Values | Example |
+|---|---|---|
+| `r` | `BR`, `BIOME_AMZ` `BIOME_CER` `BIOME_MAT` `BIOME_CAA` `BIOME_PAN` `BIOME_PAM`, `UF_AC` … `UF_TO`, `RMC` | `?r=BIOME_PAN` |
+| `from`, `to` | years from 2001 to 2025 | `?from=2015&to=2025` |
+| `s` | `harmonized` (default), `naive`, `modis`, `viirs` | `?s=naive` shows the 2012 trap |
+| `v` | `counts` (default), `anomaly` (log2 against that calendar month's mean over the selected years) | `?r=BIOME_PAN&v=anomaly` shows 2020 |
+| `map` | `states` (default), `biomes` | `?map=biomes` |
+
+**Accessibility:**
+- The colour scales are colour-blind safe: YlOrRd for counts and PuOr for anomalies.
+- The calendar is a single tab stop. Arrow keys move between months, and the tooltip is announced.
+- Every calendar has a table version.
+- The map has a ranked list beside it, so no value depends on colour alone.
+- Light and dark themes follow the system setting.
+- The layout works from 375 px wide.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/map-dark.png">
+  <img alt="Map of Brazilian states coloured by harmonized hotspots, with a ranked list: Mato Grosso 9.0 M (25%), Pará 7.1 M (19%), Maranhão 3.7 M (10%)" src="docs/img/map-light.png" width="720">
+</picture>
+
+### Data you can download
+
+[`web/public/data/all_regions_monthly.csv`](web/public/data/all_regions_monthly.csv) holds all 35 regions with one row per month from 2000-11 to 2025-12 (about 600 KB). The download button on the site exports the current selection in the same format.
+
+| Column | Meaning |
+|---|---|
+| `region` | Region id, as in the `r` parameter above |
+| `month` | `YYYY-MM` |
+| `harmonized` | Hotspots on the VIIRS-equivalent scale. **Use this column for comparisons across years.** |
+| `lo`, `hi` | 90% prediction interval. It equals `harmonized` where VIIRS was observed. |
+| `source` | Where the value comes from: `viirs_observed`; `harmonized_modis` (2001–2011, from Terra + Aqua); `modis_terra_adjusted` (Nov 2000 to Aug 2002, when only Terra was flying); `modis_gapfill` (a VIIRS outage filled from calibrated MODIS) |
+| `modis_raw`, `viirs_raw` | Raw counts of each sensor after cleaning. `viirs_raw` is empty before 2012. |
+| `naive` | The splice as it would be without harmonization: MODIS until 2011, then VIIRS |
+| `qa_flag` | `1` when satellite coverage that month was reduced (fewer than 80% of days with data) and no other sensor could replace it |
+
+Each region also has its own `web/public/data/series/<region>.json`. `meta.json` holds the fitted model parameters, the cross-validation results and the sensitivity tests.
+
+---
+
+## How it works
+
+```
+NASA FIRMS yearly archives (40 CSVs, 2.2 GB)
+  │  MODIS C6.1 Terra+Aqua 2000–2025 · VIIRS S-NPP 375 m 2012–2025
+  ▼
+clean ── vegetation fires only (type 0), nominal/high confidence, duplicates removed
+  │      28,844,913 detections: 18,987,187 VIIRS + 9,857,726 MODIS
+  ▼
+assign ── state · biome · Campinas Metro Area (IBGE boundaries, point-in-polygon)
+  ▼
+monthly counts per region, with each sensor's daily coverage
+  ▼
+Terra-only fix ── Nov 2000 to Aug 2002: scale Terra by its (Terra+Aqua)/Terra ratio,
+  │               fitted on 2003–2011 for each calendar month and region
+  ▼
+calibrate ── 162 clean overlap months (2012–2025); five models compared with
+  │          2-fold temporal cross-validation (2012–18 ↔ 2019–25)
+  ▼
+back-cast 2001–2011 with 90% prediction intervals; fill VIIRS outages from MODIS
+  ▼
+static JSON + CSV ──► website (Vite, TypeScript, D3, Observable Plot)
+```
+
+**Choosing the model.** Each model was trained on one half of the overlap and tested on the other half, then the halves were swapped:
 
 | Model | RMSE (log) | R² (log) | Mean absolute bias |
-|---|---|---|---|
-| C0, no harmonization | 1.39 | −0.34 | 74% |
-| C1, one ratio for Brazil | 0.47 | 0.86 | 8% |
-| C2, one ratio per region | 0.46 | 0.86 | 9% |
-| C3, log-log per region | 0.34 | 0.93 | 10% |
-| **C4, log-log per region + fire-season term (used)** | **0.34** | **0.93** | 10% |
+|---|---:|---:|---:|
+| C0: no harmonization (naive splice) | 1.39 | −0.34 | 74% |
+| C1: one VIIRS/MODIS ratio for all of Brazil | 0.47 | 0.86 | 8% |
+| C2: one ratio per region | 0.46 | 0.86 | 9% |
+| C3: log-log regression per region | 0.34 | 0.93 | 10% |
+| **C4: log-log per region + fire-season term (used)** | **0.34** | **0.93** | 10% |
 
-5. **Back-cast** 2001–2011 with 90% prediction intervals. Months where VIIRS coverage was degraded (Jan 2012, Aug 2022, Jul 2024) are left out of the fit and filled from calibrated MODIS.
+Out-of-sample R² is 0.99 for Brazil, between 0.89 and 0.98 for the biomes, 0.95 for São Paulo state and 0.68 for the Campinas Metro Area. Regions with too few fires to fit their own model borrow C2 from their parent region, and the series file records when that happens.
 
-## Results
+**Why 3.77× and not just any number.** The ratio depends on what is being counted:
 
-| Brazil, annual 2001–2025 | Step 2009–11 → 2012–14 | Change point (Pettitt) | Trend (Mann-Kendall) |
-|---|---|---|---|
-| Naive splice | **3.19×** | 2012 (p < 0.001) | +5.6%/yr, p < 0.001 |
-| Harmonized | **0.84×** | none at 2012 | −2.1%/yr, p = 0.038 |
-| MODIS only (reference) | 0.84× | none at 2012 | −1.6%/yr, p = 0.18 |
+| Counting rule | VIIRS / MODIS in Brazil |
+|---|---:|
+| Nominal + high confidence (used) | 3.77× |
+| Including low-confidence detections | 3.92× |
+| Daytime passes only | 3.24× |
+| Fire-days on a 0.1° grid instead of pixels | 2.11× |
 
-After harmonization the 2012 step matches MODIS alone, and the false rising trend disappears.
+Counting burning places instead of burning pixels cuts the gap almost in half. Most of the difference between the two sensors comes from pixel size, which is why one fixed ratio (C1) does worse than a per-region model.
 
-## Limitations
+**Months excluded from the calibration.** Any month in which a sensor had data on fewer than 80% of days was left out of the fit:
 
-- Hotspots are active-fire pixels at satellite overpass time, not burned area. Clouds hide fires.
-- Pre-2012 values are model estimates. Intervals are wide where fires are rare (e.g. the Campinas Metro Area, cross-validated R² = 0.68, compared with 0.96–0.99 for biomes).
-- The log-log models (C3/C4) have the lowest error but a slight positive bias (about +5%); single ratios (C1/C2) are less biased but noisier. C3 and C4 are practically tied.
-- Orbit drift of Terra and Aqua changes overpass times in recent years; the VIIRS/MODIS ratio falls slightly after 2022.
-- MODIS product versions in the FIRMS archive change over time (6.2, then 6.03 from 2018, then 61.03 from 2023).
-- 2026 is not included: the yearly archive is published after the year ends.
+| Sensor | Months excluded |
+|---|---|
+| VIIRS | Jan 2012 (instrument start-up), Aug 2022, Jul 2024 |
+| Aqua | Aug 2002, Apr 2022 |
+| Terra | Jun 2001, Mar 2002, Dec 2003, Feb 2016, Oct 2022 |
 
-## Reproduce
+The full method, the formulas and the alternatives considered are in [docs/METHODOLOGY.md](docs/METHODOLOGY.md) and [docs/DECISIONS.md](docs/DECISIONS.md).
 
-Requires Python 3.11+, [uv](https://github.com/astral-sh/uv) and Node 20+.
+---
+
+## Run it yourself
+
+Requires Python 3.11+, [uv](https://github.com/astral-sh/uv) and Node 20+. The data is public and needs no NASA account.
 
 ```bash
-make setup      # Python env + web dependencies
-make data       # downloads ~2.2 GB of FIRMS CSVs into data/raw (not versioned)
-make pipeline   # builds monthly series, harmonizes, validates, writes web/public/data
-make test
-make dev        # local site
+make setup      # Python env (pinned in requirements.lock) + web dependencies
+make data       # downloads the 40 FIRMS yearly CSVs for Brazil into data/raw (~2.2 GB, resumable)
+make pipeline   # about 90 s with DuckDB: monthly series, harmonization, validation, web data
+make test       # schema, harmonization and region-lookup tests
+make dev        # site at http://localhost:5173
 ```
 
-The pipeline runs in about 90 seconds on a laptop (DuckDB).
-
-## Project structure
+The pipeline is deterministic: running it again on the same archives gives byte-identical series. On every push to `main`, CI runs the tests before building and publishing the site to GitHub Pages.
 
 ```
-scripts/download.py     FIRMS downloader (resumable)
+scripts/download.py     FIRMS downloader (resumable, overlap years first)
 pipeline/build.py       CSV → cleaned detections → monthly counts per region (DuckDB)
-pipeline/harmonize.py   Terra/Aqua adjustment, calibration models, prediction intervals
-pipeline/validate.py    Pettitt, Mann-Kendall, step ratio
-pipeline/export.py      cross-validation, final fits, JSON/CSV for the site
-web/                    static site (Vite, TypeScript, Observable Plot, d3)
+pipeline/regions.py     IBGE boundaries via geobr, point → state/biome/metro lookup
+pipeline/harmonize.py   Terra/Aqua adjustment, calibration models C0–C4, prediction intervals
+pipeline/validate.py    Pettitt change point, Mann-Kendall + Sen, step ratio
+pipeline/export.py      cross-validation, final fits, JSON/CSV/TopoJSON for the site
+web/                    static site
+tests/                  pytest
 ```
 
-## Tools and licences
+---
 
-DuckDB, pandas, NumPy, GeoPandas, Shapely, statsmodels, pymannkendall, geobr, topojson (Python); Vite, TypeScript, D3, Observable Plot, topojson-client (web). Public Sans typeface (SIL Open Font License). Space Apps logo used as provided by the challenge organizers; no NASA insignia is used.
+## Limits
 
-Code: MIT licence. FIRMS data: NASA open data.
+- **Hotspots are not burned area.** A hotspot is a pixel that was burning when the satellite passed over. Clouds hide fires, and a fire that starts and ends between passes is never counted.
+- **Values before 2012 are estimates.** Their uncertainty is part of the data, and it grows where fires are rare.
+- **The log-log models have a small positive bias** of about +5%. Single ratios (C1/C2) have less bias but more noise. C3 and C4 are practically tied.
+- **Orbits drift.** Terra and Aqua now pass over at different hours than they used to, and the VIIRS/MODIS ratio falls slightly after 2022. The 2019–2025 test fold includes that period.
+- **MODIS product versions change** within the FIRMS archive: 6.2 until 2017, 6.03 from 2018 and 61.03 from 2023.
+- **2026 is not included.** NASA publishes the yearly archive after each year ends. Adding near-real-time months would need a FIRMS MAP_KEY.
 
-_Not an official NASA product._
+## Data and credits
+
+| Source | Used for |
+|---|---|
+| [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) MODIS Collection 6.1 active fires (Terra + Aqua), yearly Brazil files, 2000–2025 | The long record and the calibration partner |
+| [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) VIIRS S-NPP 375 m active fires (VNP14IMG), yearly Brazil files, 2012–2025 | The modern record and the target scale |
+| IBGE boundaries via [geobr](https://github.com/ipeaGIT/geobr): states (2020), biomes (2019), metropolitan areas (2018) | Assigning each detection to a region |
+
+All data was accessed on 14 November 2026.
+
+- Giglio, L., Schroeder, W., Justice, C. O. (2016). The collection 6 MODIS active fire detection algorithm and fire products. *Remote Sensing of Environment*, 178, 31–41.
+- Schroeder, W., Oliva, P., Giglio, L., Csiszar, I. A. (2014). The New VIIRS 375 m active fire detection data product: Algorithm description and initial assessment. *Remote Sensing of Environment*, 143, 85–96.
+
+**Libraries:**
+- Python: DuckDB, pandas, NumPy, GeoPandas, Shapely, statsmodels, pymannkendall, geobr and topojson.
+- Web: Vite, TypeScript, D3, Observable Plot and topojson-client.
+
+The site uses the Public Sans typeface (SIL Open Font License) and the Space Apps logo as provided by the organizers. No NASA insignia is used.
+
+The code is released under the MIT licence, and the FIRMS data is NASA open data. FireCalendar is not an official NASA product.
