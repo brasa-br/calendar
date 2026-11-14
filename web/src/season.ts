@@ -109,9 +109,9 @@ export function renderSeason(host: HTMLElement, r: SeasonResult, width: number):
     marks: [
       Plot.line(others, { x: "m", y: "v", z: "y", stroke: css("--ink-3"), strokeOpacity: 0.28, strokeWidth: 1 }),
       Plot.line(med, { x: "m", y: "v", stroke: css("--ink-2"), strokeDasharray: "4,3", strokeWidth: 1.5 }),
-      Plot.line(focus, { x: "m", y: "v", stroke: css("--bar"), strokeWidth: 3 }),
-      Plot.dot(focus.slice(-1), { x: "m", y: "v", fill: css("--bar"), r: 4.5 }),
-      Plot.text(focus.slice(-1), { x: "m", y: "v", text: () => String(r.focus), dx: 8, textAnchor: "start", fill: css("--ink"), fontWeight: 650, fontSize: 13 }),
+      Plot.line(focus, { x: "m", y: "v", stroke: css("--bar"), strokeWidth: 3, className: "season-focus" }),
+      Plot.dot(focus.slice(-1), { x: "m", y: "v", fill: css("--bar"), r: 4.5, className: "season-focus-end" }),
+      Plot.text(focus.slice(-1), { x: "m", y: "v", text: () => String(r.focus), dx: 8, textAnchor: "start", fill: css("--ink"), fontWeight: 650, fontSize: 13, className: "season-focus-end" }),
       Plot.tip([...others, ...focus.map((d) => ({ ...d, y: r.focus }))], Plot.pointer({
         x: "m", y: "v", stroke: css("--rule"),
         title: (d: { y: number; m: number; v: number }) => `${d.y}, end of ${MONTHS_LONG[d.m]}: ${fmtInt.format(d.v)} hotspots`,
