@@ -11,3 +11,17 @@ web/dist/
 *.log
 web/public/data/grid/
 *.egg-info/
+.env.*
+!.env.example
+*.pem
+*.key
+.vscode/
+.idea/
+*.local.*
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.cache/
+CLAUDE.md
+.claude/
