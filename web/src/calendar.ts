@@ -163,6 +163,14 @@ export function renderCalendar(host: HTMLElement, tip: HTMLElement, input: Calen
       .attr("cx", cellW - 6)
       .attr("cy", 6)
       .attr("r", 2.2);
+    g.filter((c) => c.i >= 0 && series.source[c.i] === "viirs_provisional")
+      .append("rect")
+      .attr("class", "prov-outline")
+      .attr("x", 2.5)
+      .attr("y", 2.5)
+      .attr("width", cellW - 5)
+      .attr("height", CELL_H - 5)
+      .attr("rx", 1.5);
   });
 
   // The 2012 seam: where the satellite record changes.

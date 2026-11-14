@@ -147,6 +147,8 @@ main { padding-bottom: var(--s8); }
 .key-list li { display: flex; align-items: center; gap: var(--s2); }
 .key-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); opacity: 0.55; margin-inline: 5px; }
 .key-seam { width: 16px; border-top: 2px dashed var(--ink); }
+.prov-outline { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 2; opacity: 0.7; pointer-events: none; }
+.key-prov { width: 14px; height: 10px; border: 1px dashed var(--ink); border-radius: 2px; opacity: 0.7; }
 .key-hatch { width: 16px; height: 12px; border: 1px solid var(--rule); background: repeating-linear-gradient(45deg, var(--ink-3) 0 1px, transparent 1px 4px); }
 .hint { font-size: var(--t-small); color: var(--ink-2); margin: var(--s2) 0 0; }
 
@@ -242,3 +244,21 @@ tbody th { text-align: left; font-weight: 500; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* Season comparison (early warning) */
+.season { margin-top: var(--s7); }
+.verdict { max-width: 68ch; font-size: 1.0625rem; line-height: 1.5; color: var(--ink); margin: var(--s3) 0 var(--s4); text-wrap: pretty; }
+.season-key { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); margin: var(--s2) 0 0; }
+.key-line { display: inline-block; width: 22px; height: 0; vertical-align: middle; margin-right: var(--s2); border-top: 1px solid var(--ink-3); }
+.key-focus { border-top: 3px solid var(--bar); }
+.key-median { border-top: 2px dashed var(--ink-2); }
+.key-other { opacity: 0.5; }
+.season h3 { margin-top: var(--s5); }
+.records { list-style: none; padding: 0; margin: var(--s2) 0 0; display: grid; gap: var(--s2); max-width: 68ch; }
+.records li { font-variant-numeric: tabular-nums; }
+.records strong { font-weight: 650; margin-right: var(--s2); }
+.records span { display: block; color: var(--ink-2); font-size: var(--t-small); }
+.case { margin-top: var(--s4); max-width: 68ch; }
+.linklike { font: inherit; color: var(--action); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+.linklike:hover { text-decoration-thickness: 2px; }
+.linklike:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }

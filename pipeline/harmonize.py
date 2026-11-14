@@ -12,8 +12,9 @@ from . import config as C
 MODELS = ("C0", "C1", "C2", "C3", "C4")
 
 
-def month_index(start: str = C.START_MONTH, end: str = C.END_MONTH) -> pd.Index:
-    return pd.period_range(start, end, freq="M").strftime("%Y-%m")
+def month_index(start: str | None = None, end: str | None = None) -> pd.Index:
+    # Read config at call time: export.py extends END_MONTH when provisional current-year data exists.
+    return pd.period_range(start or C.START_MONTH, end or C.END_MONTH, freq="M").strftime("%Y-%m")
 
 
 def wide_series(monthly: pd.DataFrame, region: str, col: str = "n") -> pd.DataFrame:

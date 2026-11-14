@@ -85,6 +85,26 @@ The VIIRS/MODIS ratio for Brazil over the calibration months:
 
 The grid-based ratio is much smaller. That suggests a large part of the VIIRS excess comes from one fire lighting several 375 m pixels, not only from small fires that MODIS misses.
 
-## 8. Known limitations
+## 8. Current year (provisional)
 
-See the README. In short: hotspots are not burned area; pre-2012 values are estimates with stated intervals; orbit drift; MODIS archive version changes; 2026 not yet in the yearly archive.
+The yearly country archives exist only for finished years. `scripts/fetch_nrt.py` fills the current year from the FIRMS Area API over a Brazil bounding box. It uses standard-processing data (MODIS_SP, VIIRS_SNPP_SP) where FIRMS already has it and near-real-time data (MODIS_NRT, VIIRS_SNPP_NRT) after that, then writes files in the archive layout so the pipeline is unchanged.
+
+- **No fire-type field.** API rows have no `type` column. Detections in 0.01° cells flagged as static land sources (type 2) in the previous three archive years are marked as type 2 and dropped by the normal filter. The rest are treated as vegetation fires. A new industrial heat source would therefore be counted until it appears in an archive.
+- **Only complete months.** The series ends at the last complete month of VIIRS data.
+- **Provisional months are never used to fit the models.** The calibration window stays 2012–2025, so the coefficients, cross-validation and proof statistics do not change when provisional months are added. Running the pipeline with and without ten provisional months gave identical calibration ratios.
+- **Labelled everywhere.** These months have `source = viirs_provisional`. They are drawn with a dashed outline in the calendar and left out of annual totals and trend tests.
+
+## 9. Early-warning comparison
+
+For the last year of the selection (the focus year), the site adds up hotspots month by month and compares each running total with the same point in every complete earlier year of the selection.
+
+- **Median year:** the median of those earlier running totals, month by month.
+- **Rank:** how many earlier years had more hotspots by the latest month with data.
+- **Ahead since:** the first month from which the focus year stays above every earlier year through the latest month.
+- **Month records:** months whose single-month count exceeds the same month in every earlier year.
+
+At least five complete earlier years are required. Only years before the focus year are compared, so a past year is judged with the information that existed at the time. The calibration coefficients are the exception, since they come from 2012–2025.
+
+## 10. Known limitations
+
+See the README. In short: hotspots are not burned area; pre-2012 values are estimates with stated intervals; orbit drift; MODIS archive version changes; current-year months are provisional.

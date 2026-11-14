@@ -1,6 +1,6 @@
 import "./styles.css";
 import {
-  FIRST_YEAR, LAST_YEAR, MONTHS, SERIES_LABEL,
+  FIRST_YEAR, LAST_MONTH, LAST_YEAR, MONTHS, SERIES_LABEL, setSpan,
   loadBoundaries, loadMeta, loadRegions, loadSeries, loadValidation,
   valueAt, type Meta, type Region, type Series, type SeriesKey, type Validation, type ViewKey,
 } from "./data";
@@ -8,6 +8,7 @@ import { buildCells, renderCalendar, renderLegend } from "./calendar";
 import { annualRows, renderAnnual, renderBeforeAfter, renderValidation } from "./charts";
 import { renderMap, setTopology, type MapLayer } from "./map";
 import { fmt1, fmt2, fmtInt, fmtP, fmtSigned, mannKendall } from "./stats";
+import { renderSeason, seasonCompare, seasonVerdict } from "./season";
 
 interface State { r: string; from: number; to: number; s: SeriesKey; v: ViewKey; layer: MapLayer }
 
@@ -90,6 +91,10 @@ function fillControls(): void {
   $("layer").addEventListener("change", (e) => update({ layer: (e.target as HTMLInputElement).value as MapLayer }));
   $("controls").addEventListener("submit", (e) => e.preventDefault());
   $("download").addEventListener("click", downloadCSV);
+  $("example-pantanal").addEventListener("click", () => {
+    update({ r: "BIOME_PAN", from: FIRST_YEAR, to: 2020, s: "harmonized" });
+    $("season").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  });
 }
 
 function syncControls(): void {
@@ -133,6 +138,8 @@ function render(): void {
   renderLegend($("legend"), state.v, cells);
   renderSummary(cells);
   renderTable(cells);
+  const kind = regions.find((x) => x.id === state.r)?.kind;
+  renderSeasonNow(kind === "biome" || kind === "metro" ? `the ${name}` : name);
 
   const rows = annualRows(current, state.s, state.from, state.to);
   const mk = rows.length >= 4 ? mannKendall(rows.map((r) => r.value)) : null;
@@ -142,7 +149,35 @@ function render(): void {
       ? `Dashed line: Sen's slope, ${fmtSigned(mk.slope)} hotspots per year (Mann-Kendall ${fmtP(mk.p)}). Lighter bars are years estimated from MODIS; whiskers show the 90% range.`
       : `No statistically significant trend in this period (Mann-Kendall ${fmtP(mk.p)}). Lighter bars are years estimated from MODIS; whiskers show the 90% range.`
     : "Choose at least four years to test for a trend.";
+  if (state.to === LAST_YEAR && LAST_MONTH.slice(5) !== "12")
+    $("annual-note").textContent += ` ${LAST_YEAR} is left out until the year is complete; see how it compares so far above.`;
   renderMapNow();
+}
+
+function renderSeasonNow(name: string): void {
+  const verdict = $("season-verdict");
+  const host = $("season-host");
+  const r = seasonCompare(current!, state.s, state.from, state.to);
+  $("season-title").textContent = `How ${state.to} compares with earlier years`;
+  $("season-focus-label").textContent = String(state.to);
+  const wrap = $("season-records-wrap");
+  if (!r || r.years.length < 5) {
+    verdict.textContent = r
+      ? `Choose a period with at least five complete years before ${state.to} to compare against.`
+      : state.s === "viirs" && state.to < 2012
+        ? `VIIRS has no data for ${state.to}: it started observing in 2012. Choose Harmonized to compare earlier years.`
+        : `No ${SERIES_LABEL[state.s].toLowerCase()} data for ${state.to}.`;
+    host.replaceChildren();
+    wrap.hidden = true;
+    return;
+  }
+  const partial = r.last < 11;
+  verdict.textContent = seasonVerdict(r, name, partial) + (partial ? " Provisional: recent months use near-real-time data." : "");
+  renderSeason(host, r, Math.min(host.clientWidth || 720, 900));
+  wrap.hidden = !r.monthRecords.length;
+  $("season-records").innerHTML = r.monthRecords
+    .map((x) => `<li><strong>${MONTHS[x.m]} ${r.focus}</strong> ${fmtInt.format(x.value)} hotspots <span>Previous highest ${MONTHS[x.m]}: ${fmtInt.format(x.prevMax)} in ${x.prevYear}</span></li>`)
+    .join("");
 }
 
 function seriesNote(): string {
@@ -334,6 +369,14 @@ function renderMethod(): void {
     `In Brazil, VIIRS reports ${fmt2.format(s.default_nominal_high)}× the hotspots of MODIS over 2012–2025 ` +
     `(${fmt2.format(s.including_low_confidence)}× if low-confidence detections are kept, ${fmt2.format(s.daytime_only)}× for daytime only). ` +
     `Counting fire-days on a 0.1° grid instead of pixels narrows the gap to ${fmt2.format(s["fire_cell_days_0.1deg"])}×, which shows how much of the difference comes from pixel size.`;
+  if (meta.provisional) {
+    const [y, mo] = meta.provisional.through.split("-");
+    $("key-provisional").hidden = false;
+    const [fy, fm] = meta.provisional.from.split("-");
+    const range = fy === y ? `${MONTHS[+fm - 1]} to ${MONTHS[+mo - 1]} ${y}` : `${MONTHS[+fm - 1]} ${fy} to ${MONTHS[+mo - 1]} ${y}`;
+    $("key-provisional-text").textContent = `${range}: provisional, from NASA's near-real-time feed`;
+    $("limit-current").textContent = `${range} come from NASA's near-real-time and standard-processing feeds. These months are provisional until NASA publishes the yearly archive, and they are never used to fit the models.`;
+  }
   $("generated").textContent = `Data processed ${meta.generated_utc.replace("T", " ").replace("Z", " UTC")}.`;
 }
 
@@ -360,6 +403,8 @@ async function init(): Promise<void> {
     const [regs, m] = await Promise.all([loadRegions(), loadMeta()]);
     regions = regs;
     meta = m;
+    if (m.span?.[1]) setSpan(m.span[1]);
+    state = readState(); // the year range depends on the data span in meta.json
     names = new Map(regions.map((r) => [r.id, r.name]));
     fillControls();
     await update({});

@@ -23,7 +23,7 @@
       <div class="wrap masthead-inner">
         <div>
           <h1>FireCalendar</h1>
-          <p class="lede">25 years of fire in Brazil, one consistent record. NASA MODIS and VIIRS satellite hotspots, harmonized month by month.</p>
+          <p class="lede">25 years of fire in Brazil, one consistent record. NASA MODIS and VIIRS satellite hotspots, harmonized month by month, so any year can be compared with every year since 2001.</p>
         </div>
         <nav aria-label="Page">
           <a href="#why">Why harmonize</a>
@@ -81,6 +81,7 @@
               <li><span class="key-dot" aria-hidden="true"></span>Estimated from MODIS before VIIRS existed (hover for the 90% range)</li>
               <li><span class="key-seam" aria-hidden="true"></span>January 2012: VIIRS joins the record</li>
               <li><span class="key-hatch" aria-hidden="true"></span>Reduced satellite coverage that month</li>
+              <li id="key-provisional" hidden><span class="key-prov" aria-hidden="true"></span><span id="key-provisional-text">Provisional months</span></li>
             </ul>
           </div>
           <p class="hint">Use the arrow keys to move between months.</p>
@@ -103,6 +104,23 @@
         <summary>Show the calendar as a table</summary>
         <div class="table-scroll" id="table-host"></div>
       </details>
+
+      <section id="season" class="season" aria-labelledby="season-title">
+        <h2 id="season-title">How this year compares</h2>
+        <p class="section-note">Fire crews and budgets are planned around the usual season. This chart adds up hotspots month by month for the last year of your selection and draws every earlier year behind it. A year that runs ahead of all of them is a warning months before the peak.</p>
+        <p class="verdict" id="season-verdict" aria-live="polite"></p>
+        <div id="season-host"></div>
+        <ul class="key-list season-key" aria-hidden="true">
+          <li><span class="key-line key-focus"></span><span id="season-focus-label">Selected year</span></li>
+          <li><span class="key-line key-median"></span>Median of earlier years</li>
+          <li><span class="key-line key-other"></span>Each earlier year</li>
+        </ul>
+        <div id="season-records-wrap" hidden>
+          <h3>Months above every earlier year</h3>
+          <ul class="records" id="season-records"></ul>
+        </div>
+        <p class="small case">A known case: <button type="button" class="linklike" id="example-pantanal">the Pantanal in 2020</button>, when about 30% of the Brazilian Pantanal burned (44,998&nbsp;km², <a href="https://doi.org/10.3390/fire6070277" rel="noopener">Shimabukuro et al., 2023</a>).</p>
+      </section>
 
       <section class="annual" aria-labelledby="annual-title">
         <h2 id="annual-title">Hotspots per year</h2>
@@ -148,7 +166,7 @@
           <li><strong>Clean.</strong> Keep only vegetation fires (no volcanoes, industrial heat sources or offshore flares) with nominal or high confidence, and drop duplicates.</li>
           <li><strong>Assign.</strong> Place each of <span id="n-detections">the</span> detections in its state, biome and the Campinas Metro Area using IBGE boundaries.</li>
           <li><strong>Fill the Terra-only years.</strong> Until mid-2002 only Terra flew. We scale those months by the Terra-to-(Terra + Aqua) ratio measured in 2003–2011, separately for each calendar month and region.</li>
-          <li><strong>Calibrate.</strong> Both sensors flew together from 2012 to 2025 (<span id="n-calib">—</span> clean months). For every region we fit a model that converts MODIS counts into VIIRS-equivalent counts, then apply it backwards to 2001–2011 with a 90% prediction interval.</li>
+          <li><strong>Calibrate.</strong> Both sensors flew together from 2012 to 2025 (<span id="n-calib">—</span> clean months). For every region we fit a model that converts MODIS counts into VIIRS-equivalent counts, then apply it backwards to 2001–2011 with a 90% prediction interval. We tested five models, from one ratio for all of Brazil to a regression per region, on years each model had not seen, and kept the most accurate. It has three parameters per region, so it is easy to check and to rerun.</li>
           <li><strong>Check.</strong> Models are trained on 2012–2018 and tested on 2019–2025, and the other way round. Months with reduced satellite coverage are left out of training and flagged in the calendar; when VIIRS has a gap, the calibrated MODIS value fills it.</li>
         </ol>
 
@@ -170,7 +188,7 @@
           <li>Hotspots count active fire pixels at the moment a satellite passes. They are not burned area, and cloud cover hides fires.</li>
           <li>Values before 2012 are estimates. Their uncertainty is shown and grows in regions with few fires.</li>
           <li>Satellite orbits drift over time, which changes the hour of observation. The VIIRS-to-MODIS ratio fell slightly after 2022, and the 2019–2025 test captures this.</li>
-          <li>2026 is not included yet: NASA publishes the yearly archive after each year ends.</li>
+          <li id="limit-current">2026 is not included yet: NASA publishes the yearly archive after each year ends.</li>
         </ul>
       </section>
     </main>

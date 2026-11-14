@@ -2,7 +2,7 @@
 
 **25 years of fire in Brazil, one consistent record.**
 
-In January 2012 Brazil appeared to start burning three times as much as before. It didn't. NASA had started counting fires with a sharper satellite instrument. FireCalendar removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025, for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area.
+In January 2012 Brazil appeared to start burning three times as much as before. It didn't. NASA had started counting fires with a sharper satellite instrument. FireCalendar removes that artefact. It calibrates the old MODIS record (since 2000) against VIIRS (since 2012), using the 14 years in which both flew together. The result is one month-by-month fire calendar, from 2001 to 2025, for Brazil, its 6 biomes, its 27 states and the Campinas Metro Area. On a consistent record, this year can be compared with every year since 2001, months before the fire season peaks.
 
 **[Open the calendar](<SITE_URL>)** | [30-second demo](<VIDEO_URL>) | [Method](docs/METHODOLOGY.md) | [Design decisions](docs/DECISIONS.md) | [Download all data (CSV)](web/public/data/all_regions_monthly.csv)
 
@@ -67,6 +67,25 @@ All counts below are harmonized hotspots (VIIRS-equivalent) for 2001–2025. The
 
 ---
 
+## Early warning: how this year compares
+
+Fire crews and budgets are planned around the usual season. FireCalendar adds up a year's hotspots month by month and draws every earlier year behind it. A year that runs ahead of all of them is a warning months before the peak. This comparison only works on a harmonized record: on the naive splice, every year since 2012 looks like a record year.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/season-pantanal-2020-dark.png">
+  <img alt="Cumulative hotspots in the Pantanal through 2020, compared with each year from 2001 to 2019. The 2020 line is above every earlier year from January and ends at 185,902, while the median year ends near 34,000." src="docs/img/season-pantanal-2020-light.png">
+</picture>
+
+**The Pantanal in 2020.** That year about 30% of the Brazilian Pantanal burned: 44,998 km², according to Shimabukuro et al. (2023). On the harmonized record, the signal was visible early:
+- **January 2020:** the Pantanal was already ahead of every year from 2001 to 2019 at the same point, and it stayed ahead until December.
+- **End of June:** two months before the usual peak, it had 19,877 hotspots. That was 6.1× the 2001–2019 median for that point of the year, and more than any earlier year had by then (the previous highest was 14,086, in 2009).
+- **End of the year:** 2020 closed with 185,902 hotspots, 5.4× the median year.
+- **Record months:** January, March, April, July, August, September and October each set a record for their month.
+
+Open this case at `?r=BIOME_PAN&to=2020`. With the current year's data from the FIRMS API (see [Run it yourself](#run-it-yourself)), the same panel follows the year as it unfolds.
+
+---
+
 ## Use it
 
 The site is static: there is no login and nothing to install. All of its state is kept in the URL, so any view can be shared as a link.
@@ -74,7 +93,7 @@ The site is static: there is no login and nothing to install. All of its state i
 | Parameter | Values | Example |
 |---|---|---|
 | `r` | `BR`, `BIOME_AMZ` `BIOME_CER` `BIOME_MAT` `BIOME_CAA` `BIOME_PAN` `BIOME_PAM`, `UF_AC` … `UF_TO`, `RMC` | `?r=BIOME_PAN` |
-| `from`, `to` | years from 2001 to 2025 | `?from=2015&to=2025` |
+| `from`, `to` | Years from 2001 to the latest year. `to` is also the year compared in the early-warning panel | `?from=2015&to=2025` |
 | `s` | `harmonized` (default), `naive`, `modis`, `viirs` | `?s=naive` shows the 2012 trap |
 | `v` | `counts` (default), `anomaly` (log2 against that calendar month's mean over the selected years) | `?r=BIOME_PAN&v=anomaly` shows 2020 |
 | `map` | `states` (default), `biomes` | `?map=biomes` |
@@ -102,7 +121,7 @@ The site is static: there is no login and nothing to install. All of its state i
 | `month` | `YYYY-MM` |
 | `harmonized` | Hotspots on the VIIRS-equivalent scale. **Use this column for comparisons across years.** |
 | `lo`, `hi` | 90% prediction interval. It equals `harmonized` where VIIRS was observed. |
-| `source` | Where the value comes from: `viirs_observed`; `harmonized_modis` (2001–2011, from Terra + Aqua); `modis_terra_adjusted` (Nov 2000 to Aug 2002, when only Terra was flying); `modis_gapfill` (a VIIRS outage filled from calibrated MODIS) |
+| `source` | Where the value comes from: `viirs_observed`; `harmonized_modis` (2001–2011, from Terra + Aqua); `modis_terra_adjusted` (Nov 2000 to Aug 2002, when only Terra was flying); `modis_gapfill` (a VIIRS outage filled from calibrated MODIS); `viirs_provisional` (current year, from the FIRMS API) |
 | `modis_raw`, `viirs_raw` | Raw counts of each sensor after cleaning. `viirs_raw` is empty before 2012. |
 | `naive` | The splice as it would be without harmonization: MODIS until 2011, then VIIRS |
 | `qa_flag` | `1` when satellite coverage that month was reduced (fewer than 80% of days with data) and no other sensor could replace it |
@@ -177,6 +196,7 @@ Requires Python 3.11+, [uv](https://github.com/astral-sh/uv) and Node 20+. The d
 ```bash
 make setup      # Python env (pinned in requirements.lock) + web dependencies
 make data       # downloads the 40 FIRMS yearly CSVs for Brazil into data/raw (~2.2 GB, resumable)
+make nrt        # optional: current year from the FIRMS API (free MAP_KEY in .env as FIRMS_MAP_KEY)
 make pipeline   # about 90 s with DuckDB: monthly series, harmonization, validation, web data
 make test       # schema, harmonization and region-lookup tests
 make dev        # site at http://localhost:5173
@@ -186,6 +206,7 @@ The pipeline is deterministic: running it again on the same archives gives byte-
 
 ```
 scripts/download.py     FIRMS downloader (resumable, overlap years first)
+scripts/fetch_nrt.py    current year from the FIRMS Area API (standard processing where available, then near-real-time)
 pipeline/build.py       CSV → cleaned detections → monthly counts per region (DuckDB)
 pipeline/regions.py     IBGE boundaries via geobr, point → state/biome/metro lookup
 pipeline/harmonize.py   Terra/Aqua adjustment, calibration models C0–C4, prediction intervals
@@ -204,7 +225,7 @@ tests/                  pytest
 - **The log-log models have a small positive bias** of about +5%. Single ratios (C1/C2) have less bias but more noise. C3 and C4 are practically tied.
 - **Orbits drift.** Terra and Aqua now pass over at different hours than they used to, and the VIIRS/MODIS ratio falls slightly after 2022. The 2019–2025 test fold includes that period.
 - **MODIS product versions change** within the FIRMS archive: 6.2 until 2017, 6.03 from 2018 and 61.03 from 2023.
-- **2026 is not included.** NASA publishes the yearly archive after each year ends. Adding near-real-time months would need a FIRMS MAP_KEY.
+- **The current year is provisional.** NASA publishes the yearly archive after each year ends. `make nrt` fills the gap from the FIRMS API. Near-real-time data has no fire-type field, so the script drops detections in cells flagged as static heat sources in the previous three archive years. These months are drawn with a dashed outline, left out of annual totals and trends, and never used to fit the models.
 
 ## Data and credits
 
@@ -217,6 +238,7 @@ tests/                  pytest
 All data was accessed on 14 November 2026.
 
 - Giglio, L., Schroeder, W., Justice, C. O. (2016). The collection 6 MODIS active fire detection algorithm and fire products. *Remote Sensing of Environment*, 178, 31–41.
+- Shimabukuro, Y. E., et al. (2023). Assessment of burned areas during the Pantanal fire crisis in 2020 using Sentinel-2 images. *Fire*, 6(7), 277. https://doi.org/10.3390/fire6070277
 - Schroeder, W., Oliva, P., Giglio, L., Csiszar, I. A. (2014). The New VIIRS 375 m active fire detection data product: Algorithm description and initial assessment. *Remote Sensing of Environment*, 143, 85–96.
 
 **Libraries:**

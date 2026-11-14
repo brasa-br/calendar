@@ -46,10 +46,27 @@ def qa_masks(cov: pd.DataFrame, idx: pd.Index) -> tuple[pd.Series, pd.Series]:
     return modis_bad, viirs_bad
 
 
+def last_complete_month(viirs_last_day: str) -> str:
+    """Last calendar month fully covered by the data (never earlier than the archive end)."""
+    d = pd.Timestamp(viirs_last_day)
+    p = d.to_period("M") if d.is_month_end else d.to_period("M") - 1
+    return max(str(p), C.OVERLAP_END)
+
+
 def main() -> None:
     monthly = pd.read_parquet(C.INTERIM / "monthly.parquet")
     cov = pd.read_parquet(C.INTERIM / "coverage.parquet")
     build_meta = json.loads((C.INTERIM / "build_meta.json").read_text())
+    # Months after the yearly archives (scripts/fetch_nrt.py) are shown but never used for calibration.
+    C.END_MONTH = last_complete_month(build_meta["date_span"]["VIIRS"][1])
+    provisional = None
+    if C.END_MONTH > C.OVERLAP_END:
+        y = int(C.END_MONTH[:4])
+        prov_file = C.RAW / f"provisional_{y}.json"
+        provisional = {"from": f"{int(C.OVERLAP_END[:4]) + 1}-01", "through": C.END_MONTH,
+                       "fetch": json.loads(prov_file.read_text()) if prov_file.exists() else None}
+        monthly = monthly[monthly.ym <= C.END_MONTH]
+        cov = cov[cov.ym <= C.END_MONTH]
     versions = pd.read_parquet(C.INTERIM / "versions.parquet")
     bounds = load_boundaries()
     regs = regions_table(bounds)
@@ -130,7 +147,8 @@ def main() -> None:
         hlo = np.where(idx < C.OVERLAP_START, lo, harm)
         hhi = np.where(idx < C.OVERLAP_START, hi, harm)
         src = np.where(idx < C.AQUA_FULL_FROM, "modis_terra_adjusted",
-                       np.where(idx < C.OVERLAP_START, "harmonized_modis", "viirs_observed")).astype(object)
+                       np.where(idx < C.OVERLAP_START, "harmonized_modis",
+                                np.where(idx > C.OVERLAP_END, "viirs_provisional", "viirs_observed"))).astype(object)
         gap = (viirs_bad & ~modis_bad).values
         harm = np.where(gap, pred, harm)
         hlo = np.where(gap, lo, hlo)
@@ -187,6 +205,7 @@ def main() -> None:
     meta = {
         "generated_utc": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%MZ"),
         "span": [C.START_MONTH, C.END_MONTH],
+        "provisional": provisional,
         "sources": {
             "MODIS": {"product": "MODIS Collection 6.1 active fires (Terra + Aqua), FIRMS",
                       "url": f"{C.FIRMS_BASE}/modis/YYYY/modis_YYYY_Brazil.csv",

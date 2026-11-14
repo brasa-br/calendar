@@ -25,6 +25,8 @@ export interface Series {
 
 export interface Meta {
   generated_utc: string;
+  span: [string, string];
+  provisional: { from: string; through: string } | null;
   selected_model: string;
   k_global_viirs_per_modis: number;
   calibration_months: number;
@@ -88,13 +90,14 @@ export function valueAt(s: Series, key: SeriesKey, i: number): number | null {
   }
 }
 
-export const isEstimated = (src: string) => src !== "viirs_observed";
+export const isEstimated = (src: string) => src !== "viirs_observed" && src !== "viirs_provisional";
 
 export const SOURCE_LABEL: Record<string, string> = {
   viirs_observed: "Observed by VIIRS",
   harmonized_modis: "Estimated from MODIS",
   modis_terra_adjusted: "Estimated from MODIS (Terra only, adjusted for Aqua)",
   modis_gapfill: "VIIRS gap filled from MODIS",
+  viirs_provisional: "Observed by VIIRS, provisional (near-real-time data)",
 };
 
 export const SERIES_LABEL: Record<SeriesKey, string> = {
@@ -106,4 +109,10 @@ export const SERIES_LABEL: Record<SeriesKey, string> = {
 
 export const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 export const FIRST_YEAR = 2001;
-export const LAST_YEAR = 2025;
+/** Last year and month with data; extended from meta.json when provisional current-year data exists. */
+export let LAST_YEAR = 2025;
+export let LAST_MONTH = "2025-12";
+export function setSpan(end: string): void {
+  LAST_MONTH = end;
+  LAST_YEAR = +end.slice(0, 4);
+}

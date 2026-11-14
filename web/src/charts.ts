@@ -15,6 +15,8 @@ export interface AnnualRow {
 export function annualRows(s: Series, key: SeriesKey, from: number, to: number): AnnualRow[] {
   const rows: AnnualRow[] = [];
   for (let y = from; y <= to; y++) {
+    // A year still in progress would look like a collapse in annual totals and bias the trend.
+    if (s.months.filter((m) => +m.slice(0, 4) === y).length < 12) continue;
     let v = 0, lo = 0, hi = 0, est = false, any = false;
     s.months.forEach((m, i) => {
       if (+m.slice(0, 4) !== y) return;
