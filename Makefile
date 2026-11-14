@@ -1,0 +1,16 @@
+PY := .venv/bin/python
+
+.PHONY: setup data pipeline test web dev
+setup:            ## Python env + web deps
+	uv venv .venv --python 3.12 && uv pip install -p .venv -e ".[dev]"
+	cd web && npm ci
+data:             ## Download NASA FIRMS yearly CSVs for Brazil (~2.2 GB, resumable)
+	$(PY) scripts/download.py
+pipeline:         ## Build monthly series, harmonize, validate, export web data
+	$(PY) -m pipeline.build && $(PY) -m pipeline.export
+test:
+	$(PY) -m pytest -q
+web:              ## Production build of the site into web/dist
+	cd web && npm run build
+dev:
+	cd web && npm run dev

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FireCalendar — 25 years of fire in Brazil</title>
+    <meta name="description" content="A month-by-month calendar of active fires in Brazil from 2001 to 2025, built by harmonizing NASA MODIS and VIIRS satellite hotspots into one consistent record." />
+    <meta property="og:title" content="FireCalendar — 25 years of fire in Brazil" />
+    <meta property="og:description" content="NASA MODIS and VIIRS fire hotspots harmonized into one consistent monthly record for every Brazilian state and biome." />
+    <meta property="og:image" content="./img/og.png" />
+    <meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14181a" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="./img/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;650&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#calendar-section">Skip to calendar</a>
+    <header class="masthead">
+      <div class="wrap masthead-inner">
+        <div>
+          <h1>FireCalendar</h1>
+          <p class="lede">25 years of fire in Brazil, one consistent record. NASA MODIS and VIIRS satellite hotspots, harmonized month by month.</p>
+        </div>
+        <nav aria-label="Page">
+          <a href="#method">How it works</a>
+          <a href="https://github.com/" id="repo-link" rel="noopener">Source code</a>
+        </nav>
+      </div>
+    </header>
+
+    <form class="controls" id="controls" aria-label="Calendar controls">
+      <div class="wrap controls-inner">
+        <label class="field">
+          <span>Region</span>
+          <select id="region"></select>
+        </label>
+        <fieldset class="field period">
+          <legend>Period</legend>
+          <select id="from" aria-label="First year"></select>
+          <span aria-hidden="true">to</span>
+          <select id="to" aria-label="Last year"></select>
+        </fieldset>
+        <fieldset class="field">
+          <legend>Series</legend>
+          <div class="segmented" id="series" role="radiogroup">
+            <label><input type="radio" name="s" value="harmonized" checked /><span>Harmonized</span></label>
+            <label><input type="radio" name="s" value="naive" /><span>Naive splice</span></label>
+            <label><input type="radio" name="s" value="modis" /><span>MODIS raw</span></label>
+            <label><input type="radio" name="s" value="viirs" /><span>VIIRS raw</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="field">
+          <legend>Show</legend>
+          <div class="segmented" id="view" role="radiogroup">
+            <label><input type="radio" name="v" value="counts" checked /><span>Hotspots</span></label>
+            <label><input type="radio" name="v" value="anomaly" /><span>Vs. usual</span></label>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+
+    <main class="wrap">
+      <p class="error" id="error" role="alert" hidden></p>
+
+      <section id="calendar-section" class="calendar-section" aria-labelledby="cal-title">
+        <div class="cal-main">
+          <h2 id="cal-title">Monthly hotspots</h2>
+          <p class="series-note" id="series-note"></p>
+          <div class="cal-host" id="calendar-host">
+            <div class="skeleton" aria-hidden="true"></div>
+            <div class="tip" id="tip" role="status" hidden></div>
+          </div>
+          <div class="cal-key">
+            <div id="legend"></div>
+            <ul class="key-list">
+              <li><span class="key-dot" aria-hidden="true"></span>Estimated from MODIS before VIIRS existed (hover for the 90% range)</li>
+              <li><span class="key-seam" aria-hidden="true"></span>January 2012: VIIRS joins the record</li>
+              <li><span class="key-hatch" aria-hidden="true"></span>Reduced satellite coverage that month</li>
+            </ul>
+          </div>
+          <p class="hint">Use the arrow keys to move between months.</p>
+        </div>
+
+        <aside class="summary" aria-labelledby="sum-title">
+          <h3 id="sum-title" class="visually-hidden">Summary of the selection</h3>
+          <dl id="summary">
+            <div><dt>Peak month</dt><dd id="sum-peak">—</dd></div>
+            <div><dt>Fire season</dt><dd id="sum-season">—</dd></div>
+            <div><dt>Total in period</dt><dd id="sum-total">—</dd></div>
+            <div><dt>Long-term trend</dt><dd id="sum-trend">—</dd></div>
+          </dl>
+          <button type="button" class="btn" id="download">Download CSV</button>
+          <p class="small"><a href="./data/all_regions_monthly.csv" download>All 35 regions, every month (CSV)</a></p>
+        </aside>
+      </section>
+
+      <details class="data-table">
+        <summary>Show the calendar as a table</summary>
+        <div class="table-scroll" id="table-host"></div>
+      </details>
+
+      <section class="annual" aria-labelledby="annual-title">
+        <h2 id="annual-title">Hotspots per year</h2>
+        <p class="section-note" id="annual-note"></p>
+        <div id="annual-host"></div>
+      </section>
+
+      <section class="map-section" aria-labelledby="map-title">
+        <div class="map-head">
+          <h2 id="map-title">Where fire concentrates</h2>
+          <div class="segmented" id="layer" role="radiogroup" aria-label="Map regions">
+            <label><input type="radio" name="layer" value="states" checked /><span>States</span></label>
+            <label><input type="radio" name="layer" value="biomes" /><span>Biomes</span></label>
+          </div>
+        </div>
+        <p class="section-note" id="map-note">Total harmonized hotspots in the selected period. Choose a region to open its calendar; the ringed dot is the Campinas Metro Area.</p>
+        <div id="map-host" class="map-host"><div class="skeleton" aria-hidden="true"></div></div>
+      </section>
+
+      <section id="method" class="method" aria-labelledby="method-title">
+        <h2 id="method-title">Why harmonize?</h2>
+        <div class="prose">
+          <p>NASA has watched fires from space with <strong>MODIS</strong> (on the Terra and Aqua satellites, 1&nbsp;km pixels) since 2000, and with <strong>VIIRS</strong> (375&nbsp;m pixels) since 2012. VIIRS sees smaller fires, so it reports several times more hotspots. MODIS is near the end of its mission, and VIIRS is its successor.</p>
+          <p>If you simply join the two records, the change of sensor looks like an explosion of fire in 2012. <span id="proof-text"></span></p>
+        </div>
+        <figure class="figure">
+          <div id="before-after"></div>
+          <figcaption>Annual hotspots in Brazil. The shaded band is the 90% range of the harmonized estimate before 2012.</figcaption>
+        </figure>
+
+        <h3>How it works</h3>
+        <ol class="prose steps">
+          <li><strong>Clean.</strong> Keep only vegetation fires (no volcanoes, industrial heat sources or offshore flares) with nominal or high confidence, and drop duplicates.</li>
+          <li><strong>Assign.</strong> Place each of <span id="n-detections">the</span> detections in its state, biome and the Campinas Metro Area using IBGE boundaries.</li>
+          <li><strong>Fill the Terra-only years.</strong> Until mid-2002 only Terra flew. We scale those months by the Terra-to-(Terra + Aqua) ratio measured in 2003–2011, separately for each calendar month and region.</li>
+          <li><strong>Calibrate.</strong> Both sensors flew together from 2012 to 2025 (<span id="n-calib">—</span> clean months). For every region we fit a model that converts MODIS counts into VIIRS-equivalent counts, then apply it backwards to 2001–2011 with a 90% prediction interval.</li>
+          <li><strong>Check.</strong> Models are trained on 2012–2018 and tested on 2019–2025, and the other way round. Months with reduced satellite coverage are left out of training and flagged in the calendar; when VIIRS has a gap, the calibrated MODIS value fills it.</li>
+        </ol>
+
+        <div class="method-grid">
+          <figure class="figure">
+            <h3>Out-of-sample test by biome</h3>
+            <div id="validation-host"></div>
+            <figcaption>Each dot is a month in the test period. Dots on the dashed line are perfect predictions.</figcaption>
+          </figure>
+          <div>
+            <h3>Model comparison</h3>
+            <div class="table-scroll"><table class="metrics" id="metrics"></table></div>
+            <p class="small" id="sensitivity"></p>
+          </div>
+        </div>
+
+        <h3>Limits</h3>
+        <ul class="prose">
+          <li>Hotspots count active fire pixels at the moment a satellite passes. They are not burned area, and cloud cover hides fires.</li>
+          <li>Values before 2012 are estimates. Their uncertainty is shown and grows in regions with few fires.</li>
+          <li>Satellite orbits drift over time, which changes the hour of observation. The VIIRS-to-MODIS ratio fell slightly after 2022, and the 2019–2025 test captures this.</li>
+          <li>2026 is not included yet: NASA publishes the yearly archive after each year ends.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <picture><source srcset="./img/spaceapps-logo-white.png" media="(prefers-color-scheme: dark)" /><img src="./img/spaceapps-logo.png" alt="NASA International Space Apps Challenge" width="132" height="47" /></picture>
+        <div>
+          <p>Data: NASA FIRMS active fire archive (MODIS Collection 6.1, VIIRS S-NPP 375&nbsp;m), accessed November 2026. Boundaries: IBGE via geobr.</p>
+          <p>Built for the NASA Space Apps Challenge 2026, Campinas. Not an official NASA product.</p>
+          <p id="generated"></p>
+        </div>
+      </div>
+    </footer>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
