@@ -67,7 +67,7 @@ All counts below are harmonized hotspots (VIIRS-equivalent) for 2001–2025. The
 - **The Cerrado has the most concentrated fire season:** 77% of its hotspots fall in August–October.
 - **The Caatinga peaks a month later**, in October.
 - **The Pampa has the least seasonal fire regime** of the six biomes and peaks in August, in the southern winter.
-- **The Pantanal's worst year is 2020.** In 2025 it had 5,280 hotspots, its lowest year in the record.
+- **The Pantanal's worst year is 2020.** In 2025 it had 5,280 hotspots, its lowest complete year in the record.
 
 **The Campinas Metro Area** is small and rarely burns, so it shows the method at its limits. It had 22,852 hotspots in 25 years. Its season comes earlier, peaking in August, with 2010 as its worst year. Its out-of-sample R² is 0.68, the lowest of all 35 regions, so its uncertainty bands are wide, and the site shows them.
 
