@@ -2,6 +2,8 @@ import * as Plot from "@observablehq/plot";
 import { isEstimated, type Meta, type Series, type SeriesKey, valueAt, type Validation, SERIES_LABEL } from "./data";
 import { fmtInt } from "./stats";
 
+const fmtCompact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+
 const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 export interface AnnualRow {
@@ -42,7 +44,18 @@ function median(xs: number[]): number {
 }
 
 export function renderAnnual(host: HTMLElement, rows: AnnualRow[], key: SeriesKey, sen: { slope: number; p: number } | null): void {
-  const width = Math.max(320, host.clientWidth);
+  if (!rows.length) {
+    const p = document.createElement("p");
+    p.className = "small";
+    p.textContent = "No complete year in this period yet.";
+    host.replaceChildren(p);
+    return;
+  }
+  // A short period gets bars of a readable width, not one bar stretched across the page.
+  const width = Math.max(240, Math.min(host.clientWidth, 64 + 20 + rows.length * 96));
+  const few = rows.length <= 8;
+  // Full numbers when each bar has room for them, compact ones ("1.5M") when it does not.
+  const label = width / rows.length >= 90 ? fmtInt : fmtCompact;
   // Sen's line: intercept is the median of (y − slope·x), the standard companion to the median slope.
   const intercept = sen && rows.length ? median(rows.map((r) => r.value - sen.slope * r.year)) : 0;
   const trendLine = sen ? rows.map((r) => ({ year: r.year, value: intercept + sen.slope * r.year })) : [];
@@ -51,8 +64,8 @@ export function renderAnnual(host: HTMLElement, rows: AnnualRow[], key: SeriesKe
     height: 240,
     marginLeft: 64,
     style: { fontFamily: "inherit", fontSize: "12px", background: "transparent", color: css("--ink-2") },
-    x: { label: null, tickFormat: "d", type: "band", padding: 0.18, tickSize: 0, ticks: rows.filter((r) => r.year % 5 === 0).map((r) => r.year) },
-    y: { label: `${SERIES_LABEL[key]} hotspots per year`, grid: true, tickFormat: "~s" },
+    x: { label: null, tickFormat: "d", type: "band", padding: 0.18, tickSize: 0, ticks: rows.filter((r) => rows.length <= 12 || r.year % 5 === 0).map((r) => r.year) },
+    y: { label: `${SERIES_LABEL[key]} hotspots per year`, grid: true, tickFormat: (d: number) => fmtCompact.format(d), nice: true, insetTop: few ? 14 : 0 },
     marks: [
       Plot.barY(rows, {
         x: "year",
@@ -62,6 +75,7 @@ export function renderAnnual(host: HTMLElement, rows: AnnualRow[], key: SeriesKe
       }),
       Plot.ruleX(rows.filter((r) => r.estimated), { x: "year", y1: "lo", y2: "hi", stroke: css("--ink-2"), strokeWidth: 1.2 }),
       sen && sen.p < 0.05 ? Plot.line(trendLine, { x: "year", y: "value", stroke: css("--action"), strokeWidth: 2, strokeDasharray: "5,3" }) : null,
+      few ? Plot.text(rows, { x: "year", y: (d: AnnualRow) => (d.estimated ? d.hi : d.value), text: (d: AnnualRow) => label.format(d.value), dy: -8, fill: css("--ink"), fontVariant: "tabular-nums" }) : null,
       Plot.ruleY([0]),
     ],
   });
