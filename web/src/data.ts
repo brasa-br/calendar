@@ -64,6 +64,34 @@ async function getJSON<T>(path: string): Promise<T> {
 export const loadRegions = () => getJSON<Region[]>("regions.json");
 export const loadMeta = () => getJSON<Meta>("meta.json");
 export const loadValidation = () => getJSON<Validation>("validation.json");
+export const loadWarning = () => getJSON<Warning>("warning.json");
+
+export interface WarningMonth {
+  month: number;
+  flagged: number;
+  hits: number;
+  missed: number;
+  false_alarms: number;
+  p_severe_if_flagged: number | null;
+  p_severe_if_not: number | null;
+  false_alarm_median_ratio: number | null;
+}
+export interface WarningEvent { region: string; name: string; year: number; ratio: number; first_ahead: number | null; peak_month: number }
+export interface StandRow { region: string; name: string; total: number; vs_median: number | null; ahead: boolean; since: number | null; rank: number; of: number }
+export interface Warning {
+  backtest: {
+    severe_x: number;
+    years: [number, number];
+    regions: number;
+    region_years: number;
+    severe: number;
+    by_month: WarningMonth[];
+    events: WarningEvent[];
+    ahead_before_peak: number;
+    median_lead_months: number | null;
+  };
+  current: { year: number; through_month: number; regions: StandRow[] } | null;
+}
 let boundaries: Promise<unknown> | null = null;
 export const loadBoundaries = () => (boundaries ??= getJSON<unknown>("boundaries.topo.json"));
 

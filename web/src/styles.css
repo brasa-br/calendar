@@ -349,3 +349,15 @@ svg { --plot-background: var(--surface); }
 @media (max-width: 480px) {
   .metrics { font-size: var(--t-small); }
 }
+
+/* Early-warning check, "where this year stands", region comparison */
+.warning-table td, .compare-table td { font-variant-numeric: tabular-nums; }
+.stands { margin-top: var(--s7); }
+.stands .verdict { margin-top: 0; }
+.compare { margin-top: var(--s7); }
+.compare-controls { display: flex; flex-wrap: wrap; gap: var(--s4) var(--s5); margin-bottom: var(--s4); }
+.compare-controls select { min-width: 14rem; }
+.compare-table th:not(:first-child) { text-align: left; }
+.compare-table td { text-align: left; }
+.compare-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s6); }
+@media (max-width: 860px) { .compare-grid { grid-template-columns: minmax(0, 1fr); gap: 0; } .compare-controls select { min-width: 0; width: 100%; } .compare-controls .field { flex: 1 1 12rem; } }

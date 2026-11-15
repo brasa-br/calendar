@@ -1,7 +1,7 @@
 import "./styles.css";
 import {
   FIRST_YEAR, LAST_MONTH, LAST_YEAR, MONTHS, SERIES_LABEL, setSpan,
-  loadBoundaries, loadMeta, loadRegions, loadSeries, loadValidation,
+  loadBoundaries, loadMeta, loadRegions, loadSeries, loadValidation, loadWarning,
   valueAt, type Meta, type Region, type Series, type SeriesKey, type Validation, type ViewKey,
 } from "./data";
 import { buildCells, renderCalendar, renderLegend } from "./calendar";
@@ -10,6 +10,8 @@ import { renderMap, setTopology, type MapLayer } from "./map";
 import { fmt1, fmt2, fmtInt, fmtP, fmtSigned, mannKendall } from "./stats";
 import { renderSeason, seasonCompare, seasonVerdict } from "./season";
 import { initHero } from "./hero";
+import { renderStands, renderWarningCheck } from "./warning";
+import { renderCompare } from "./compare";
 
 interface State { r: string; from: number; to: number; s: SeriesKey; v: ViewKey; layer: MapLayer }
 
@@ -63,14 +65,24 @@ function showError(msg: string): void {
   el.hidden = false;
 }
 
-function fillControls(): void {
-  const sel = $<HTMLSelectElement>("region");
+function fillRegionSelect(sel: HTMLSelectElement): void {
   const groups: [string, Region["kind"]][] = [["Country", "country"], ["Biomes", "biome"], ["States", "state"], ["Local spotlight", "metro"]];
   for (const [label, kind] of groups) {
     const og = document.createElement("optgroup");
     og.label = label;
     for (const r of regions.filter((x) => x.kind === kind)) og.append(new Option(r.name, r.id));
     sel.append(og);
+  }
+}
+
+function fillControls(): void {
+  const sel = $<HTMLSelectElement>("region");
+  fillRegionSelect(sel);
+  for (const id of ["cmp-a", "cmp-b"] as const) {
+    const s = $<HTMLSelectElement>(id);
+    fillRegionSelect(s);
+    s.value = id === "cmp-a" ? "BIOME_PAN" : "BIOME_AMZ";
+    s.addEventListener("change", renderCompareNow);
   }
   for (const id of ["from", "to"]) {
     const s = $<HTMLSelectElement>(id);
@@ -153,6 +165,32 @@ function render(): void {
   if (state.to === LAST_YEAR && LAST_MONTH.slice(5) !== "12")
     $("annual-note").textContent += ` ${LAST_YEAR} is left out until the year is complete; see how it compares so far above.`;
   renderMapNow();
+  renderCompareNow();
+}
+
+let compareId = 0;
+async function renderCompareNow(): Promise<void> {
+  const a = $<HTMLSelectElement>("cmp-a").value;
+  const b = $<HTMLSelectElement>("cmp-b").value;
+  if (!a || !b) return;
+  const id = ++compareId;
+  try {
+    const [sa, sb] = await Promise.all([loadSeries(a), loadSeries(b)]);
+    if (id !== compareId) return;
+    renderCompare(
+      { facts: $("cmp-facts"), annual: $("cmp-annual"), season: $("cmp-season"), note: $("cmp-note") },
+      { id: a, name: names.get(a) ?? a, series: sa },
+      { id: b, name: names.get(b) ?? b, series: sb },
+      state.s, state.from, state.to,
+    );
+  } catch {
+    $("cmp-note").textContent = "The data for these regions could not be loaded. Choose them again.";
+  }
+}
+
+function pickRegion(r: string): void {
+  update({ r, from: FIRST_YEAR, to: LAST_YEAR, s: "harmonized" });
+  $("season").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
 
 function renderSeasonNow(name: string): void {
@@ -427,6 +465,15 @@ async function init(): Promise<void> {
     })
     .then(renderMapNow)
     .catch(() => ($("map-host").textContent = "The map could not be loaded. The calendar still works."));
+  loadWarning()
+    .then((w) => {
+      renderWarningCheck($("warning-check"), w);
+      renderStands($("stands-host"), $("stands-title"), w, pickRegion);
+    })
+    .catch(() => {
+      $("warning-check").textContent = "The early-warning check could not be loaded.";
+      $("stands").hidden = true;
+    });
   loadValidation()
     .then((v) => {
       validation = v;

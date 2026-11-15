@@ -40,6 +40,9 @@ const STORY_BUTTONS: Record<string, keyof typeof STORIES> = {
 /** Opening scene: the animated ember map, its readout and two guided stories. */
 export async function initHero(meta: Meta | null): Promise<void> {
   const canvas = $<HTMLCanvasElement>("ember");
+  // ?story=2012|pantanal|cerrado|amazonas opens on a guided story. Read before any await: the
+  // calendar rewrites the query string with its own state.
+  const wanted = new URLSearchParams(location.search).get("story");
   if (!("DecompressionStream" in window) || !canvas.getContext("2d")) throw new Error("unsupported browser");
   const [grid, topology, national] = await Promise.all([loadGrid(), loadBoundaries(), loadSeries("BR")]);
   const ratio = meta?.k_global_viirs_per_modis ?? 3.8;
@@ -137,6 +140,8 @@ export async function initHero(meta: Meta | null): Promise<void> {
     map.resize();
   }).observe(canvas.parentElement!);
 
-  if (EmberMap.reducedMotion) map.seek(at("2020-09"));
+  const storyButton = wanted === "2012" ? "hero-2012" : Object.entries(STORY_BUTTONS).find(([, k]) => k === wanted)?.[0];
+  if (storyButton) $(storyButton).click();
+  else if (EmberMap.reducedMotion) map.seek(at("2020-09"));
   else map.play(0);
 }

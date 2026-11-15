@@ -69,6 +69,8 @@ def regions_table(b: dict[str, gpd.GeoDataFrame]) -> list[dict]:
 
     def proper(name: str) -> str:
         # geobr title-cases Portuguese particles ("Rio Grande Do Sul"); official names keep them lowercase.
+        # geobr 2020 also misspells Amazonas with a circumflex.
+        name = name.replace("Amazônas", "Amazonas")
         return re.sub(r"\b(Do|Da|De|Dos|Das)\b", lambda m: m.group(1).lower(), name)
 
     for code, name in sorted(C.BIOME_NAMES_EN.items(), key=lambda x: x[1]):

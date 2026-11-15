@@ -146,13 +146,36 @@
           <h3>Months above every earlier year</h3>
           <ul class="records" id="season-records"></ul>
         </div>
+        <h3 id="warning-check-title">Does this warning work?</h3>
+        <div id="warning-check" aria-labelledby="warning-check-title"></div>
         <p class="small case">A known case: <button type="button" class="linklike" id="example-pantanal">the Pantanal in 2020</button>, when about 30% of the Brazilian Pantanal burned (44,998&nbsp;km², <a href="https://doi.org/10.3390/fire6070277" rel="noopener">Shimabukuro et al., 2023</a>).</p>
+      </section>
+
+      <section id="stands" class="stands" aria-labelledby="stands-title">
+        <h2 id="stands-title">Where this year stands</h2>
+        <p class="section-note">The same check for every region at once: this year's hotspots so far, against the same months of every earlier complete year. Choose a region to open its calendar and chart.</p>
+        <div id="stands-host" aria-live="polite"></div>
       </section>
 
       <section class="annual" aria-labelledby="annual-title">
         <h2 id="annual-title">Hotspots per year</h2>
         <p class="section-note" id="annual-note"></p>
         <div id="annual-host"></div>
+      </section>
+
+      <section id="compare" class="compare" aria-labelledby="compare-title">
+        <h2 id="compare-title">Compare two regions</h2>
+        <p class="section-note">Uses the series and period chosen above. Each region is measured against its own usual year, so a small region and a large one can share one chart.</p>
+        <div class="compare-controls">
+          <label class="field"><span>First region</span><select id="cmp-a"></select></label>
+          <label class="field"><span>Second region</span><select id="cmp-b"></select></label>
+        </div>
+        <div class="table-scroll" id="cmp-facts"></div>
+        <div class="compare-grid">
+          <figure class="figure"><h3>Each year against its usual year</h3><div id="cmp-annual"></div></figure>
+          <figure class="figure"><h3>When the season comes</h3><div id="cmp-season"></div></figure>
+        </div>
+        <p class="small" id="cmp-note"></p>
       </section>
 
       <section id="why" class="why" aria-labelledby="why-title">

@@ -88,13 +88,29 @@ Fire crews and budgets are planned around the usual season. Brasa adds up a year
 - **End of the year:** 2020 closed with 185,902 hotspots, 5.4× the median year.
 - **Record months:** January, March, April, July, August, September and October each set a record for their month.
 
+**Does the warning work beyond one case?** The same comparison was replayed on all 35 regions (Brazil, 6 biomes, 27 states and the Campinas Metro Area) for every year from 2006 to 2025, each time using only the years before it: 700 region-years. A year counts as severe when it ends with at least 2× the median of the years before it; 19 did.
+
+| Ahead of every earlier year by the end of | Severe years caught (of 19) | False alarms | Flagged year turned severe | Unflagged year turned severe |
+|---|---|---|---|---|
+| June | 11 | 24 | 31% | 1.2% |
+| July | 15 | 22 | 41% | 0.6% |
+| August | 13 | 21 | 38% | 0.9% |
+
+- **Lead time:** 16 of the 19 severe years were ahead of every earlier year before their peak month, a median of 6 months before it.
+- **Misses:** the three that were not are all Roraima (2016, 2019, 2024), where the season peaks between January and March.
+- **False alarms are not quiet years:** flagged by the end of July but under the severe line, they still ended a median 1.3× their usual year.
+
+It is a screening signal, not a forecast: a flagged year was about 70 times more likely to turn severe than an unflagged one, but most flags still end below 2×. The site shows this table under the chart, and a **Where this year stands** list ranks every region by how this year compares so far. Computed by `pipeline/backtest.py` into `warning.json`.
+
 Open this case at `?r=BIOME_PAN&to=2020`. With the current year's data from the FIRMS API (see [Run it yourself](#run-it-yourself)), the same panel follows the year as it unfolds.
 
 ---
 
 ## Use it
 
-The site opens on an animated map: every 0.25° cell of Brazil glows with its hotspots, month by month from 2001 to October 2026, over the national monthly curve. Switch it between **Harmonized** and **Raw record** to watch the 2012 jump appear and disappear, or drag the timeline to any month. *See the 2012 jump* plays that story, and three guided views outline a region through its worst dry season: *The Pantanal in 2020*, *The Cerrado in 2010* (its worst year on the harmonized record, but only 15th on the raw one, below every year since 2012) and *Amazonas in 2024* (the state's worst year, 2.9× the median). With reduced motion turned on, the map opens still, on September 2020.
+The site opens on an animated map: every 0.25° cell of Brazil glows with its hotspots, month by month from 2001 to October 2026, over the national monthly curve. Switch it between **Harmonized** and **Raw record** to watch the 2012 jump appear and disappear, or drag the timeline to any month. *See the 2012 jump* plays that story, and three guided views outline a region through its worst dry season: *The Pantanal in 2020*, *The Cerrado in 2010* (its worst year on the harmonized record, but only 15th on the raw one, below every year since 2012) and *Amazonas in 2024* (the state's worst year, 2.9× the median). Each story has its own link: `?story=2012`, `?story=pantanal`, `?story=cerrado` or `?story=amazonas`. With reduced motion turned on, the map opens still, on September 2020.
+
+**Compare two regions** puts any pair side by side for the selected period: median year, worst year, peak month and trend, then each year as a multiple of the region's own median year and the share of the year's hotspots in each month. A small region and a large one can share one chart, for example the Campinas Metro Area and the state of São Paulo.
 
 The map is illustrative before 2012: each cell's MODIS detections are scaled by its biome's harmonized/MODIS ratio for that month, then to the national total. The calendar below it carries the official figures.
 
@@ -224,6 +240,7 @@ pipeline/harmonize.py   Terra/Aqua adjustment, calibration models C0–C4, predi
 pipeline/validate.py    Pettitt change point, Mann-Kendall + Sen, step ratio
 pipeline/export.py      cross-validation, final fits, JSON/CSV/TopoJSON for the site
 pipeline/grid.py        monthly 0.25° hotspot grid for the animated map (grid.bin, 1.5 MB)
+pipeline/backtest.py    early-warning check on every region and year, and where the current year stands (warning.json)
 web/                    static site
 tests/                  pytest
 ```
