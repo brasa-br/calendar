@@ -159,6 +159,8 @@ export function renderCompare(
   hosts.note.textContent = same
     ? "Both sides show the same region. Choose a different second region."
     : ys.length
-      ? `Complete years ${span}; a year still in progress is left out. A value of 2× means twice the hotspots of that region's median year.`
-      : "No complete year in this period yet. Choose a longer period above.";
+      ? `${lo === hi ? "Complete year" : "Complete years"}: ${span}. A year still in progress is left out. A value of 2× means twice the hotspots of that region's median year.`
+      : key === "viirs" && to < 2012
+        ? "VIIRS has no data before 2012. Choose Harmonized or a later period above."
+        : "No complete year in this period yet. Choose a longer period above.";
 }

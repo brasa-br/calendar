@@ -157,11 +157,13 @@ function render(): void {
   const rows = annualRows(current, state.s, state.from, state.to);
   const mk = rows.length >= 4 ? mannKendall(rows.map((r) => r.value)) : null;
   renderAnnual($("annual-host"), rows, state.s, mk ? { slope: mk.slope, p: mk.p } : null);
+  // Lighter bars and whiskers only exist for back-cast years of the harmonized series.
+  const est = rows.some((r) => r.estimated) ? " Lighter bars are years estimated from MODIS; whiskers show the 90% range." : "";
   $("annual-note").textContent = mk
     ? mk.p < 0.05
-      ? `Dashed line: Sen's slope, ${fmtSigned(mk.slope)} hotspots per year (Mann-Kendall ${fmtP(mk.p)}). Lighter bars are years estimated from MODIS; whiskers show the 90% range.`
-      : `No statistically significant trend in this period (Mann-Kendall ${fmtP(mk.p)}). Lighter bars are years estimated from MODIS; whiskers show the 90% range.`
-    : "Choose at least four years to test for a trend.";
+      ? `Dashed line: Sen's slope, ${fmtSigned(mk.slope)} hotspots per year (Mann-Kendall ${fmtP(mk.p)}).${est}`
+      : `No statistically significant trend in this period (Mann-Kendall ${fmtP(mk.p)}).${est}`
+    : `Choose at least four years to test for a trend.${est}`;
   if (state.to === LAST_YEAR && LAST_MONTH.slice(5) !== "12")
     $("annual-note").textContent += ` ${LAST_YEAR} is left out until the year is complete; see how it compares so far above.`;
   renderMapNow();

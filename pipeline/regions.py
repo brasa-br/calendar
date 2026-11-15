@@ -17,6 +17,13 @@ _CACHE = C.INTERIM / "boundaries.gpkg"
 
 def load_boundaries() -> dict[str, gpd.GeoDataFrame]:
     """Return {'states','biomes','rmc','country'} in EPSG:4326, cached locally."""
+    b = _load_boundaries()
+    # geobr 2020 misspells Amazonas with a circumflex.
+    b["states"]["name"] = b["states"]["name"].replace("Amazônas", "Amazonas")
+    return b
+
+
+def _load_boundaries() -> dict[str, gpd.GeoDataFrame]:
     C.INTERIM.mkdir(parents=True, exist_ok=True)
     if _CACHE.exists():
         return {k: gpd.read_file(_CACHE, layer=k) for k in ("states", "biomes", "rmc", "country")}
@@ -69,8 +76,6 @@ def regions_table(b: dict[str, gpd.GeoDataFrame]) -> list[dict]:
 
     def proper(name: str) -> str:
         # geobr title-cases Portuguese particles ("Rio Grande Do Sul"); official names keep them lowercase.
-        # geobr 2020 also misspells Amazonas with a circumflex.
-        name = name.replace("Amazônas", "Amazonas")
         return re.sub(r"\b(Do|Da|De|Dos|Das)\b", lambda m: m.group(1).lower(), name)
 
     for code, name in sorted(C.BIOME_NAMES_EN.items(), key=lambda x: x[1]):
