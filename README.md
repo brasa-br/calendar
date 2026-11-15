@@ -284,3 +284,9 @@ All data was accessed on 14 November 2026. The 2026 months will change when NASA
 The site uses the Public Sans typeface (SIL Open Font License) and the Space Apps logo as provided by the organizers. No NASA insignia is used.
 
 The code is released under the MIT licence, and the FIRMS data is NASA open data. Brasa is not an official NASA product.
+
+**AI use:**
+- An AI coding assistant helped write parts of the data pipeline, the website, the scripts that record and edit the demo video, and this documentation. The approach is the author's, and every statistical result was checked against the source data.
+- The project logo is an AI-generated image, labelled "AI-generated image" on the image itself.
+- The narration of the demo video is an AI-generated voice (Kokoro text-to-speech), labelled "Narration: AI-generated voice" on screen.
+- All data comes from NASA FIRMS and IBGE as described above; none of it is AI-generated.
