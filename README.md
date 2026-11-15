@@ -143,11 +143,12 @@ Each region also has its own `web/public/data/series/<region>.json`. `meta.json`
 ## How it works
 
 ```
-NASA FIRMS yearly archives (40 CSVs, 2.2 GB)
-  │  MODIS C6.1 Terra+Aqua 2000–2025 · VIIRS S-NPP 375 m 2012–2025
+NASA FIRMS yearly archives (40 CSVs, 2.2 GB) + FIRMS Area API for 2026
+  │  MODIS C6.1 Terra+Aqua 2000–2025 · VIIRS S-NPP 375 m 2012–2025 · 2026 so far, provisional
   ▼
 clean ── vegetation fires only (type 0), nominal/high confidence, duplicates removed
-  │      28,844,913 detections: 18,987,187 VIIRS + 9,857,726 MODIS
+  │      28,844,913 archive detections: 18,987,187 VIIRS + 9,857,726 MODIS
+  │      + 1,227,677 provisional detections for 2026
   ▼
 assign ── state · biome · Campinas Metro Area (IBGE boundaries, point-in-polygon)
   ▼
