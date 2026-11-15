@@ -12,7 +12,7 @@ Built in Campinas for the NASA Space Apps Challenge 2026, for the challenge *Har
 
 <a href="https://brasa-br.github.io/calendar/"><img src="docs/img/site-hero.jpg" alt="The Brasa site opening on its animated map: Brazil at night, each 0.25-degree cell glowing with its fire hotspots for September 2020, the worst month for the Pantanal, above the national monthly curve from 2001 to 2026." width="100%"></a>
 
-**Contents:** [The 2012 trap](#the-2012-trap) | [What the consistent record shows](#what-the-consistent-record-shows) | [Early warning](#early-warning-how-this-year-compares) | [Use it](#use-it) | [How it works](#how-it-works) | [Run it yourself](#run-it-yourself) | [Limits](#limits) | [Data and credits](#data-and-credits)
+**Contents:** [The 2012 trap](#the-2012-trap) | [What the consistent record shows](#what-the-consistent-record-shows) | [Early warning](#early-warning-how-this-year-compares) | [Use it](#use-it) | [How it works](#how-it-works) | [Run it yourself](#run-it-yourself) | [Limits](#limits) | [Team](#team) | [Data and credits](#data-and-credits)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/before-after-dark.png">
@@ -238,15 +238,22 @@ tests/                  pytest
 - **MODIS product versions change** within the FIRMS archive: 6.2 until 2017, 6.03 from 2018 and 61.03 from 2023.
 - **The current year is provisional.** NASA publishes the yearly archive after each year ends. `make nrt` fills the gap from the FIRMS API. Near-real-time data has no fire-type field, so the script drops detections in cells flagged as static heat sources in the previous three archive years. These months are drawn with a dashed outline, left out of annual totals and trends, and never used to fit the models.
 
+## Team
+
+**Team Brasa**, NASA Space Apps Challenge 2026, Campinas.
+
+- **Brenno M.**: data pipeline, calibration, website and video. [LinkedIn](https://www.linkedin.com/in/brennocm/) | [GitHub](https://github.com/brennocm)
+
 ## Data and credits
 
 | Source | Used for |
 |---|---|
 | [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) MODIS Collection 6.1 active fires (Terra + Aqua), yearly Brazil files, 2000–2025 | The long record and the calibration partner |
 | [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) VIIRS S-NPP 375 m active fires (VNP14IMG), yearly Brazil files, 2012–2025 | The modern record and the target scale |
+| [NASA FIRMS Area API](https://firms.modaps.eosdis.nasa.gov/api/area/) MODIS and VIIRS S-NPP, standard processing where available, then near-real-time, January–October 2026 | The current year, provisional |
 | IBGE boundaries via [geobr](https://github.com/ipeaGIT/geobr): states (2020), biomes (2019), metropolitan areas (2018) | Assigning each detection to a region |
 
-All data was accessed on 14 November 2026.
+All data was accessed on 14 November 2026. The 2026 months will change when NASA publishes the yearly archive.
 
 - Giglio, L., Schroeder, W., Justice, C. O. (2016). The collection 6 MODIS active fire detection algorithm and fire products. *Remote Sensing of Environment*, 178, 31–41.
 - Shimabukuro, Y. E., et al. (2023). Assessment of burned areas during the Pantanal fire crisis in 2020 using Sentinel-2 images. *Fire*, 6(7), 277. https://doi.org/10.3390/fire6070277
