@@ -99,8 +99,8 @@ export class EmberMap {
   private base: HTMLCanvasElement | null = null;
   private place = { x: 0, y: 0, w: 0, h: 0 };
   private path: d3.GeoPath | null = null;
-  private pantanal: d3.GeoPermissibleObjects | null = null;
-  private highlight = false;
+  private outlines = new Map<string, d3.GeoPermissibleObjects>();
+  private highlight: d3.GeoPermissibleObjects | null = null;
   private t = 0;
   private playing = false;
   private stopAt = Infinity;
@@ -125,10 +125,13 @@ export class EmberMap {
     this.a = new Uint8Array(ncols * nrows);
     this.b = new Uint8Array(ncols * nrows);
     const topo = o.topology as Topology;
-    const biomes = feature(topo, topo.objects.biomes as GeometryCollection) as unknown as {
-      features: { properties: { biome?: string } }[];
-    };
-    this.pantanal = (biomes.features.find((f) => f.properties.biome === "PAN") ?? null) as d3.GeoPermissibleObjects | null;
+    // Outlines that guided stories can draw: "biome:PAN", "state:AM", ...
+    for (const [obj, key] of [["biomes", "biome"], ["states", "uf"]] as const) {
+      const fc = feature(topo, topo.objects[obj] as GeometryCollection) as unknown as {
+        features: { properties: Record<string, string> }[];
+      };
+      for (const f of fc.features) this.outlines.set(`${key === "uf" ? "state" : key}:${f.properties[key]}`, f as d3.GeoPermissibleObjects);
+    }
     new IntersectionObserver(([e]) => {
       this.visible = e.isIntersecting;
       if (this.visible) this.kick();
@@ -249,9 +252,9 @@ export class EmberMap {
     ctx.drawImage(this.small, x, y, w, h);
     if (narrow) ctx.drawImage(this.small, x, y, w, h);
     ctx.globalCompositeOperation = "source-over";
-    if (this.highlight && this.pantanal && this.path) {
+    if (this.highlight && this.path) {
       ctx.beginPath();
-      d3.geoPath(this.path.projection() as d3.GeoProjection, ctx)(this.pantanal);
+      d3.geoPath(this.path.projection() as d3.GeoProjection, ctx)(this.highlight);
       ctx.strokeStyle = "rgba(255, 236, 190, 0.95)";
       ctx.lineWidth = 2 * this.dpr;
       ctx.setLineDash([5 * this.dpr, 4 * this.dpr]);
@@ -383,9 +386,11 @@ export class EmberMap {
     this.drawTimeline();
   }
 
-  setHighlight(on: boolean): void {
-    if (on === this.highlight) return;
-    this.highlight = on;
+  /** Dashed outline of one region ("biome:PAN", "state:AM"), or none. */
+  setHighlight(key: string | null): void {
+    const next = (key && this.outlines.get(key)) || null;
+    if (next === this.highlight) return;
+    this.highlight = next;
     this.draw();
   }
 

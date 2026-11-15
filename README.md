@@ -94,7 +94,7 @@ Open this case at `?r=BIOME_PAN&to=2020`. With the current year's data from the 
 
 ## Use it
 
-The site opens on an animated map: every 0.25° cell of Brazil glows with its hotspots, month by month from 2001 to October 2026, over the national monthly curve. Switch it between **Harmonized** and **Raw record** to watch the 2012 jump appear and disappear, or drag the timeline to any month. *See the 2012 jump* and *The Pantanal in 2020* play those two stories. With reduced motion turned on, the map opens still, on September 2020.
+The site opens on an animated map: every 0.25° cell of Brazil glows with its hotspots, month by month from 2001 to October 2026, over the national monthly curve. Switch it between **Harmonized** and **Raw record** to watch the 2012 jump appear and disappear, or drag the timeline to any month. *See the 2012 jump* plays that story, and three guided views outline a region through its worst dry season: *The Pantanal in 2020*, *The Cerrado in 2010* (its worst year on the harmonized record, but only 15th on the raw one, below every year since 2012) and *Amazonas in 2024* (the state's worst year, 2.9× the median). With reduced motion turned on, the map opens still, on September 2020.
 
 The map is illustrative before 2012: each cell's MODIS detections are scaled by its biome's harmonized/MODIS ratio for that month, then to the national total. The calendar below it carries the official figures.
 

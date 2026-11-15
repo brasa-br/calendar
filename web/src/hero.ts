@@ -4,6 +4,39 @@ import { fmt1, fmtInt } from "./stats";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
+/** Guided stories: a region outline and a dry season that stands out on the harmonized record.
+ *  Figures come from the harmonized monthly series (2001 to 2025). */
+const STORIES = {
+  pantanal: {
+    outline: "biome:PAN",
+    year: 2020,
+    from: "2019-10",
+    before: "The dashed outline is the Pantanal. Watch it from January 2020.",
+    during: "Pantanal, 2020: ahead of every earlier year from January, long before the September peak. About 30% of the biome burned.",
+  },
+  cerrado: {
+    outline: "biome:CER",
+    year: 2010,
+    from: "2009-12",
+    before: "The dashed outline is the Cerrado. Watch its 2010 dry season.",
+    during: "Cerrado, 2010: its worst year in the record, 2.5× the median year. On the raw record it ranks only 15th, below every year since 2012.",
+  },
+  amazonas: {
+    outline: "state:AM",
+    year: 2024,
+    from: "2023-12",
+    to: "2024-08",
+    before: "The dashed outline is the state of Amazonas. Watch its 2024 dry season.",
+    during: "Amazonas, 2024: the state's worst year in the record, 2.9× the median. A historic drought set monthly records from June to September.",
+  },
+} as const;
+type Story = keyof typeof STORIES | "2012";
+const STORY_BUTTONS: Record<string, keyof typeof STORIES> = {
+  "hero-2020": "pantanal",
+  "hero-cerrado": "cerrado",
+  "hero-amazonas": "amazonas",
+};
+
 /** Opening scene: the animated ember map, its readout and two guided stories. */
 export async function initHero(meta: Meta | null): Promise<void> {
   const canvas = $<HTMLCanvasElement>("ember");
@@ -15,17 +48,15 @@ export async function initHero(meta: Meta | null): Promise<void> {
   const lastYear = months[months.length - 1].slice(0, 4);
   const provFrom = meta?.provisional?.from ?? "9999-99";
   canvas.setAttribute("aria-label", `Map of Brazil where each fire hotspot glows, month by month from 2001 to ${lastYear}.`);
-  let story: "2012" | "2020" | null = null;
+  let story: Story | null = null;
   let timer = 0;
 
   const caption = (ym: string, mode: EmberMode): string => {
     const y = +ym.slice(0, 4);
     if (ym >= provFrom && !story)
       return `${y}, provisional: near-real-time VIIRS data, updated until the yearly archive is published.`;
-    if (story === "2020" && y >= 2019 && y <= 2020)
-      return y === 2020
-        ? "Pantanal, 2020: ahead of every earlier year from January, long before the September peak. About 30% of the biome burned."
-        : "The dashed outline is the Pantanal. Watch it from January 2020.";
+    const guided = story && story !== "2012" ? STORIES[story] : null;
+    if (guided && (y === guided.year || y === guided.year - 1)) return y === guided.year ? guided.during : guided.before;
     if (mode === "raw") {
       if (ym < split) return "Raw record: MODIS only. Its instrument sees fewer fires than the one that comes next.";
       if (y === 2012) return `January 2012: the record switches to VIIRS, which sees about ${fmt1.format(ratio)}× more hotspots. The jump is the sensor, not the fire.`;
@@ -61,7 +92,7 @@ export async function initHero(meta: Meta | null): Promise<void> {
   const endStory = () => {
     clearTimeout(timer);
     story = null;
-    map.setHighlight(false);
+    map.setHighlight(null);
   };
   // Any direct interaction ends a guided story.
   $("ember-timeline").addEventListener("pointerdown", endStory);
@@ -88,13 +119,16 @@ export async function initHero(meta: Meta | null): Promise<void> {
       }, 1600);
     });
   });
-  $("hero-2020").addEventListener("click", () => {
-    endStory();
-    story = "2020";
-    setMode("harmonized");
-    map.setHighlight(true);
-    map.play(at("2019-10"), at("2020-09"), 2.5);
-  });
+  for (const [id, key] of Object.entries(STORY_BUTTONS)) {
+    $(id).addEventListener("click", () => {
+      const s = STORIES[key];
+      endStory();
+      story = key;
+      setMode("harmonized");
+      map.setHighlight(s.outline);
+      map.play(at(s.from), at("to" in s ? s.to : `${s.year}-09`), 2.5);
+    });
+  }
 
   let lastW = canvas.clientWidth;
   new ResizeObserver(() => {
